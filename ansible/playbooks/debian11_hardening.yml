@@ -1,0 +1,11 @@
+---
+
+- name: Debian 11 hardening
+  hosts: 
+    - "all"
+  become: true
+  gather_facts: true
+  roles:
+    - os_hardening
+    - ssh_hardening
+    

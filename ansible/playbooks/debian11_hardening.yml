@@ -8,4 +8,7 @@
   roles:
     - os_hardening
     - ssh_hardening
-    
+  vars:
+    - ssh_client_password_login: true
+    - ssh_server_password_login: true
+    - sshd_authenticationmethods: "publickey password"

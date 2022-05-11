@@ -10,11 +10,11 @@
 #   tags:
 #     - configure
 
-# - name: MySQL | Users
-#   include_tasks: users.yml
-#   tags:
-#     - configure
-#     - users
+- name: MySQL | Users
+  include_tasks: users.yml
+  tags:
+    - configure
+    - users
 
 # - name: MySQL | Databases
 #   include_tasks: databases.yml

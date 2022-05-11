@@ -61,4 +61,3 @@
     state: present
     allow_unauthenticated: true
   register: install_mysql
-  notify: upgrade schemas

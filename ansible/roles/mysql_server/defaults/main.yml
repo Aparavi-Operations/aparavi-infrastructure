@@ -1,0 +1,17 @@
+---
+
+mysql_version: 0.8.22-1
+
+# Databases.
+mysql_databases: []
+#   - name: example
+#     collation: utf8_general_ci
+#     encoding: utf8
+
+# Users.
+mysql_root_user: root
+mysql_root_password: blankpassword
+
+## Service options
+mysql_service_enabled: true
+mysql_service_state: started

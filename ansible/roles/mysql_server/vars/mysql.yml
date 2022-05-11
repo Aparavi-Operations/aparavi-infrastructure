@@ -6,3 +6,15 @@ mysql_deb_repo: "https://dev.mysql.com/get/{{ mysql_deb_package }}"
 mysql_packages:
   - mysql-common
   - mysql-server
+
+mysql_databases:
+  - name: "{{ mysql_db_name }}"
+    collation: utf8mb4_unicode_ci
+    encoding: utf8mb4
+
+mysql_users:
+  - name: aparavi_app
+    host: "%"
+    password: "{{ mysql_appuser_password }}"
+    priv:
+      - '{{ mysql_db_name }}.*:ALL'

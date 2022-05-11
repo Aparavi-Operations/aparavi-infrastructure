@@ -1,0 +1,47 @@
+---
+
+# - name: MySQL | Copy MySQL service config
+#   template:
+#     src: "{{ mysql_service_template }}"
+#     dest: "/lib/systemd/system/{{ mysql_flavour }}.service"
+#     owner: root
+#     group: root
+#     mode: 0644
+#   notify: restart mysql
+
+
+- name: MySQL | Copy mysql config
+  become: true
+  copy:
+    src: "files/mysql.cnf"
+    dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+    owner: root
+    group: root
+    mode: '0644'
+    force: yes
+  notify: restart mysql
+
+
+
+# - name: MySQL | Check if datadir is initialized
+#   command: ls "{{ mysql_datadir }}/mysql"
+#   register: ls_datadir
+#   ignore_errors: true
+#   changed_when: false
+
+# - name: MySQL | Trying to initialize datadir
+#   command: /usr/sbin/mysqld --initialize-insecure --user={{ mysql_user }}
+#   register: result
+#   ignore_errors: true
+#   changed_when: result.rc == 0
+#   when: ls_datadir.stdout | length == 0
+
+- name: MySQL | Ensure MySQL is started and enabled on boot
+  service:
+    name: mysql
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: MySQL | Flush handlers to restart MySQL after previous initialization
+  meta: flush_handlers

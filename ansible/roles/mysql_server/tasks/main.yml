@@ -5,10 +5,10 @@
   tags:
     - install
 
-# - name: MySQL | Configure
-#   include_tasks: config.yml
-#   tags:
-#     - configure
+- name: MySQL | Configure
+  include_tasks: config.yml
+  tags:
+    - configure
 
 - name: MySQL | Users
   include_tasks: users.yml
@@ -16,11 +16,11 @@
     - configure
     - users
 
-# - name: MySQL | Databases
-#   include_tasks: databases.yml
-#   tags:
-#     - configure
-#     - databases
+- name: MySQL | Databases
+  include_tasks: databases.yml
+  tags:
+    - configure
+    - databases
 
 - name: MySQL | Service
   include_tasks: service.yml

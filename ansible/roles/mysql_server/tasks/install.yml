@@ -1,0 +1,63 @@
+---
+
+- name: MySQL | Gather flavour specific variables
+  include_vars: "mysql.yml"
+  with_first_found:
+    - "mysql.yml"
+    - "mysql-{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml"
+
+- name: MySQL | Gather flavour OS specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "mysql-{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml"
+      skip: true
+
+# - name: MySQL | Installing dependencies
+#   apt:
+#     pkg: "{{ mysql_required_libs }}"
+#     state: present
+
+- name: MySQL | Set MySQL server version
+  debconf:
+    name: mysql-apt-config
+    question: mysql-apt-config/select-server
+    vtype: select
+    value: "{{ mysql_server_version }}"
+  when: mysql_server_version is defined
+
+- name: MySQL | Download MySQL config deb
+  get_url:
+    url: "{{ mysql_deb_repo }}"
+    dest: /usr/src
+    # validate_certs: "no"
+
+- name: MySQL | Install MySQL repo deb
+  apt:
+    deb: "/usr/src/{{ mysql_deb_package }}"
+
+# - name: MySQL | Add Oracle repo GPG key
+#   apt_key:
+#     keyserver: "{{ mysql_oracle_gpg_keyserver }}"
+#     id: "{{ mysql_oracle_gpg_key }}"
+#     state: present
+
+- name: MySQL | Update cache
+  apt:
+    update_cache: true
+    allow_unauthenticated: true
+  changed_when: false
+
+- name: MySQL | Check if MySQL is already installed
+  shell: dpkg -s "mysql-server" | grep Status
+  register: installed_mysql
+  ignore_errors: true
+  changed_when: false
+  failed_when: false
+
+- name: MySQL | Install MySQL packages
+  apt:
+    pkg: "{{ mysql_packages }}"
+    state: present
+    allow_unauthenticated: true
+  register: install_mysql

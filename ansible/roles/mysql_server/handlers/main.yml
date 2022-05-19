@@ -1,0 +1,6 @@
+---
+- name: restart mysql
+  systemd:
+    name: mysql
+    state: restarted
+  when: mysql_service_state != 'stopped'

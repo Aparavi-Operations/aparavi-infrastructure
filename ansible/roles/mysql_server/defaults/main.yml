@@ -1,0 +1,18 @@
+---
+
+mysql_version: 0.8.22-1
+
+# Databases.
+mysql_databases: []
+
+# Users.
+mysql_root_user: root
+mysql_root_password: blankpassword
+mysql_users: []
+mysql_appuser_password: blankpassword
+
+## Service options
+mysql_service_enabled: true
+mysql_service_state: started
+
+mysql_db_name: appagent

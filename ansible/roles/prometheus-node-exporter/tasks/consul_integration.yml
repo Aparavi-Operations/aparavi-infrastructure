@@ -1,0 +1,17 @@
+---
+
+- name: 'Consul integration | Get service facts'
+  service_facts:
+
+- name: 'Consul integration | Add node-exporter consul service file'
+  copy:
+    src: 'files/node-exporter.hcl'
+    dest: '/etc/consul.d/node-exporter.hcl'
+    owner: '{{ node_exporter_consul_user }}'
+    group: '{{ node_exporter_consul_group }}'
+    mode: 0400
+  become: true
+  notify:
+    - 'reload consul config'
+  when:
+    - 'ansible_facts.services["consul.service"] is defined'

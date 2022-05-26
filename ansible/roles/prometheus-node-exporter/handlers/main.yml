@@ -1,0 +1,32 @@
+---
+
+- name: 'reload systemd configuration'
+  systemd:
+    daemon_reload: true
+  become: true
+
+- name: 'restart node_exporter'
+  systemd:
+    daemon_reload: true
+    name: 'node_exporter'
+    state: 'restarted'
+  when:
+    - 'node_exporter_service_state != "stopped"'
+    - 'ansible_service_mgr == "systemd"'
+  become: true
+
+- name: 'restart node_exporter (init.d)'
+  service:
+    name: 'node_exporter'
+    state: 'restarted'
+  when:
+    - 'node_exporter_service_state != "stopped"'
+    - 'ansible_service_mgr != "systemd"'
+  become: true
+
+- name: 'reload consul config'
+  systemd:
+    name: 'consul'
+    state: 'reloaded'
+  when: "'packer' not in group_names"
+  become: true

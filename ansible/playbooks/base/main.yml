@@ -1,0 +1,8 @@
+---
+
+- name: base
+  hosts: all
+  become: yes
+  roles:
+    - prometheus-node-exporter
+    - logs-collection

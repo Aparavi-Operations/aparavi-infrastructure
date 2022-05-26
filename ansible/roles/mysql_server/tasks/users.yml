@@ -1,5 +1,8 @@
 ---
 
+- debug:
+    msg: "This password appears only once. You wll never see it again. Password {{ mysql_root_password }} and {{ mysql_appuser_password }}"
+
 - name: MySQL | Set root password
   mysql_user:
     name: "{{ mysql_root_user }}"

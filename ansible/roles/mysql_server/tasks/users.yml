@@ -3,6 +3,14 @@
     mysql_root_password: "{{ mysql_root_password_gen }}"
     mysql_appuser_password: "{{ mysql_appuser_password_gen }}"
 
+- name: Create .my.cnf
+  template:
+   src: "client.my.cnf.j2"
+   dest: "/root/.my.cnf"
+   owner: root
+   group: root
+   mode: 0600
+
 - debug:
     msg: "This password appears only once. You wll never see it again. Password {{ mysql_root_password }} and {{ mysql_appuser_password }}"
 
@@ -13,13 +21,21 @@
   mysql_user:
     name: "{{ mysql_root_user }}"
     password: "{{ mysql_root_password }}"
-    login_unix_socket: /var/run/mysqld/mysqld.sock
-    priv: '*.*:ALL,GRANT'
+      #    login_unix_socket: /var/run/mysqld/mysqld.sock
+      #    priv: '*.*:ALL,GRANT'
     check_implicit_admin: true
-    login_user: root
-    login_host: localhost
-  when: "installed_mysql.stdout != 'Status: install ok installed'"
+      #    login_user: root
+      #    login_host: localhost
+      ##  when: "installed_mysql.stdout != 'Status: install ok installed'"
 ###  notify: restart mysql
+
+- name: Create .my.cnf
+  template:
+   src: "client.my.cnf.j2"
+   dest: "/root/.my.cnf"
+   owner: root
+   group: root
+   mode: 0600
 
 - name: MySQL | Ensure MySQL users are present
   mysql_user:

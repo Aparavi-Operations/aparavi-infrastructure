@@ -12,7 +12,7 @@ max_connect_errors              = 1000000
 pid_file                        = /var/run/mysqld/mysqld.pid
 port                            = 3306
 skip_external_locking
-###skip_name_resolve
+skip_name_resolve
 socket                          = /var/run/mysqld/mysqld.sock
 tmpdir                          = /tmp
 user                            = mysql

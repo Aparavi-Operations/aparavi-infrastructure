@@ -1,27 +1,25 @@
 ---
-- set_fact:
+- name: MySQL | Generate root password
+  set_fact:
     mysql_root_password: "{{ mysql_root_password_gen }}"
     mysql_appuser_password: "{{ mysql_appuser_password_gen }}"
 
-- debug:
-    msg: "This password appears only once. You wll never see it again. Password {{ mysql_root_password }} and {{ mysql_appuser_password }}"
-
-- debug:
-    msg: "This password appears only once. You wll never see it again. Password {{ mysql_root_password }} and {{ mysql_appuser_password }}"
+- name: MySQL | Retrieving MySQL password
+  debug:
+    msg: 
+      - "Make sure to copy your database passwords now. You won’t be able to see it again!"
+      - "MySQL root password: {{ mysql_root_password }}"
+      - "MySQL {{ mysql_users[0].name }} password: {{ mysql_appuser_password }}"
+      - "Make sure you copied the passwords without the closing quotes"
 
 - name: MySQL | Set root password
   mysql_user:
     name: "{{ mysql_root_user }}"
     password: "{{ mysql_root_password }}"
-      #    login_unix_socket: /var/run/mysqld/mysqld.sock
-      #    priv: '*.*:ALL,GRANT'
     check_implicit_admin: true
-      #    login_user: root
-      #    login_host: localhost
-      ##  when: "installed_mysql.stdout != 'Status: install ok installed'"
-###  notify: restart mysql
+###  when: "installed_mysql.stdout != 'Status: install ok installed'"
 
-- name: Create .my.cnf
+- name: MySQL | Create .my.cnf
   template:
    src: "client.my.cnf.j2"
    dest: "/root/.my.cnf"

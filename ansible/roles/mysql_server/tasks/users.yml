@@ -3,14 +3,6 @@
     mysql_root_password: "{{ mysql_root_password_gen }}"
     mysql_appuser_password: "{{ mysql_appuser_password_gen }}"
 
-- name: Create .my.cnf
-  template:
-   src: "client.my.cnf.j2"
-   dest: "/root/.my.cnf"
-   owner: root
-   group: root
-   mode: 0600
-
 - debug:
     msg: "This password appears only once. You wll never see it again. Password {{ mysql_root_password }} and {{ mysql_appuser_password }}"
 

@@ -1,0 +1,5 @@
+---
+
+dependencies:
+  - 'libselinux-python'
+  - 'policycoreutils-python'

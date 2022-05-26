@@ -1,0 +1,24 @@
+---
+
+- name: 'Set required facts'
+  import_tasks: 'set_facts.yml'
+  tags:
+    - 'configure'
+
+- name: 'Check installation'
+  import_tasks: 'install.yml'
+  tags:
+    - 'install'
+  become: true
+
+- name: 'Check configuration'
+  import_tasks: 'configure.yml'
+  tags:
+    - 'configure'
+  become: true
+
+- name: 'Register node-exporter in Consul'
+  import_tasks: 'consul_integration.yml'
+  when: 'node_exporter_consul_integration'
+  tags:
+    - 'consul_integration'

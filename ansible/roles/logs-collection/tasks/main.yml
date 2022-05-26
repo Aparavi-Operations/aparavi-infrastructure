@@ -1,0 +1,16 @@
+---
+
+- name: 'Logs collection | Install prerequisites for FileBeat role'
+  package:
+    name:
+      - 'gnupg2'
+    state: 'present'
+  become: true
+
+- name: 'Logs collection | Install FileBeat'
+  include_role:
+    name: 'beats'
+
+- name: 'Logs collection | Install Rsyslog -> FileBeat integration'
+  include_role:
+    name: 'filebeat-rsyslog-integration'

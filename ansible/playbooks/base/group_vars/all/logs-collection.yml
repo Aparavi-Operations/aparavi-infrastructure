@@ -1,0 +1,170 @@
+---
+
+beats_version: '7.17.3'
+version_lock: true
+beat: 'filebeat'
+
+beat_conf:
+  filebeat:
+    inputs:
+      - type: 'filestream'
+        id: 'filestream-collector'
+        enabled: true
+        paths:
+          - '/var/log/aparavi*/collector/*'
+        prospector.scanner:
+          check_interval: '15s'
+          ignore_older: '24h'
+        processors:
+          - add_fields:
+              target: ''
+              fields:
+                service.environment: '{{ node_meta_env | default(env) | default("") }}'
+                service.instance: '{{ node_meta_service_instance | default("") }}'
+                service.name: 'aparavi'
+                service.component: 'collector'
+                service.subcomponent: 'app'
+      - type: 'filestream'
+        id: 'filestream-aggregator'
+        enabled: true
+        paths:
+          - '/var/log/aparavi*/aggregator/*'
+        prospector.scanner:
+          check_interval: '15s'
+          ignore_older: '24h'
+        processors:
+          - add_fields:
+              target: ''
+              fields:
+                service.environment: '{{ node_meta_env | default(env) | default("") }}'
+                service.instance: '{{ node_meta_service_instance | default("") }}'
+                service.name: 'aparavi'
+                service.component: 'aggregator'
+                service.subcomponent: 'app'
+      - type: 'filestream'
+        id: 'filestream-aggregator'
+        enabled: true
+        paths:
+          - '/var/log/aparavi*/aggregator-collector/*'
+        prospector.scanner:
+          check_interval: '15s'
+          ignore_older: '24h'
+        processors:
+          - add_fields:
+              target: ''
+              fields:
+                service.environment: '{{ node_meta_env | default(env) | default("") }}'
+                service.instance: '{{ node_meta_service_instance | default("") }}'
+                service.name: 'aparavi'
+                service.component: 'appagent'
+                service.subcomponent: 'app'
+      - type: 'filestream'
+        id: 'filestream-platform'
+        enabled: true
+        paths:
+          - '/var/log/aparavi*/platform/*'
+        prospector.scanner:
+          check_interval: '15s'
+          ignore_older: '24h'
+        processors:
+          - add_fields:
+              target: ''
+              fields:
+                service.environment: '{{ node_meta_env | default(env) | default("") }}'
+                service.instance: '{{ node_meta_service_instance | default("") }}'
+                service.name: 'aparavi'
+                service.component: 'platform'
+                service.subcomponent: 'app'
+      - type: 'udp'
+        enabled: true
+        host: '127.0.0.1:5140'
+        max_message_size: '32KiB'
+        fields:
+          event.provider: 'syslog'
+        fields_under_root: true
+        processors:
+          - decode_json_fields:
+              fields: ['message']
+              overwrite_keys: true
+              target: ''
+          - add_fields:
+              target: ''
+              fields:
+                service.environment: '{{ node_meta_env | default(env) | default("") }}'
+                service.instance: '{{ node_meta_service_instance | default("") }}'
+                service.name: '{{ node_meta_service | default("") }}'
+                service.component: '{{ node_meta_component | default("") }}'
+                service.subcomponent: '{{ node_meta_subcomponent | default("") }}'
+          - drop_fields:
+              when:
+                equals:
+                  process.pid: '-'
+              fields:
+                - 'process.pid'
+              ignore_missing: true
+      - type: 'container'
+        paths:
+          - '/var/lib/docker/containers/*/*.log'
+        enabled: true
+        ignore_older: '24h'
+        fields:
+          event.provider: 'docker'
+        fields_under_root: true
+        processors:
+          - add_docker_metadata:
+          - rename:
+              fields:
+                - from: 'container.labels.service'
+                  to: 'service.name'
+                - from: 'container.labels.component'
+                  to: 'service.component'
+                - from: 'container.labels.subcomponent'
+                  to: 'service.subcomponent'
+                - from: 'container.labels.env'
+                  to: 'service.environment'
+              ignore_missing: true
+              fail_on_error: false
+          - drop_fields:
+              fields:
+                - 'log.file.path'
+                - 'container.labels'
+              ignore_missing: true
+  processors:
+    - drop_fields:
+        fields:
+          - 'agent.ephemeral_id'
+          - 'agent.hostname'
+          - 'agent.id'
+          - 'agent.name'
+          - 'agent.type'
+          - 'agent.version'
+          - 'ecs.version'
+          - 'input.type'
+          - 'log.source.address'
+          - 'log.offset'
+        ignore_missing: true
+  queue.spool:
+    file:
+      path: '${path.data}/spool.dat'
+      size: '50MiB'
+      page_size: '16KiB'
+    write:
+      buffer_size: '10MiB'
+      flush.timeout: '5s'
+      flush.events: 1024
+output_conf:
+  logstash:
+    timeout: 5
+    hosts:
+      - '{{ logstash_address }}:5044'
+    ssl:
+      enabled: true
+      verification_mode: 'strict'
+logging_conf:
+  level: 'info'
+  to_files: true
+  files:
+    path: '/var/log/filebeat'
+    name: 'filebeat'
+    keepfiles: 3
+    permissions: 0644

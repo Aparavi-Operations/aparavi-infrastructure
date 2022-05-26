@@ -1,0 +1,6 @@
+---
+
+dependencies:
+  - 'python3-policycoreutils'
+  - 'python3-libselinux'
+  - 'tar'

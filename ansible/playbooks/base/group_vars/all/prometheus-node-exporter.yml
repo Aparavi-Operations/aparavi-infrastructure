@@ -1,0 +1,8 @@
+---
+
+# Consul integration
+node_exporter_consul_integration: true
+node_exporter_consul_user: 'consul'
+node_exporter_consul_group: 'hashitools'
+consul_user: "consul"
+consul_group: "hashitools"

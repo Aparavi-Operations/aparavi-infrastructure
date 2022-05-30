@@ -1,0 +1,17 @@
+template(name="filebeat_json" type="string" string="{ \
+    {# 2:$ mean removing leading space in message - known rsyslog problem #}
+    \"message\":\"%msg:2:$:json%\" \
+    ,\"log.syslog.facility.name\":\"%syslogfacility-text%\" \
+    ,\"log.level\":\"%syslogseverity-text%\" \
+    ,\"process.name\":\"%app-name%\" \
+    ,\"process.pid\":\"%procid%\" \
+    ,\"event.created\":\"%timereported:::date-rfc3339%\" \
+    ,\"@timestamp\":\"%timegenerated:::date-rfc3339%\" \
+}")
+action(
+    type="omfwd"
+    Target="{{ filebeat_target_host }}"
+    Port="{{ filebeat_rsyslog_input_port }}"
+    Protocol="{{ filebeat_rsyslog_input_protocol }}"
+    template="filebeat_json"
+)

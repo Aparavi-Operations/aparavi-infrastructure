@@ -1,0 +1,8 @@
+# Prevent these messages from being forwarded to elasticsearch
+
+if ( $programname == 'dbus-daemon' ) then {
+  if ( $msg contains 'org.freedesktop.timedate1' ) then stop
+}
+else if ( $programname == 'systemd' ) then {
+  if ( $msg contains 'Time & Date Service' ) then stop
+}

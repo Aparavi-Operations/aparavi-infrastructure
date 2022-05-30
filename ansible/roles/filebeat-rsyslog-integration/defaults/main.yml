@@ -1,0 +1,5 @@
+---
+
+filebeat_target_host: '127.0.0.1'
+filebeat_rsyslog_input_port: 5140
+filebeat_rsyslog_input_protocol: 'udp'

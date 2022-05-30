@@ -1,0 +1,12 @@
+---
+
+- name: 'Configure rsyslog -> filebeat integration'
+  template:
+    dest: '/etc/rsyslog.d/{{ item | basename | replace(".j2", "") }}'
+    src: '{{ item }}'
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+  become: true
+  loop: '{{ lookup("fileglob", "./templates/*.j2", wantlist=True) }}'
+  notify: 'restart rsyslog'

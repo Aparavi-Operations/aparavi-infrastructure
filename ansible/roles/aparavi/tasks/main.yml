@@ -5,6 +5,12 @@
     mode: '0775'
 
 
+- name: AppAgent | Retrieving MySQL password
+  debug:
+    msg:
+      - "Make sure to copy your database root password now. You won’t be able to see it again!"
+      - "MySQL user password: {{ mysql_appuser_password }}"
+
 - name: Aparavi AppAgent | Install AppAgent
   ansible.builtin.shell: ./linux-installer-latest.run -- /APPTYPE={{ app_type }} /BINDTO={{ platform_bind_addr }} /DBTYPE={{ db_type }} /DBHOST={{ db_addr }} /DBPORT={{ db_port }} /DBUSER={{ db_user }} /DBPSWD={{ db_passwd }} /SILENT /NOSTART
   args:

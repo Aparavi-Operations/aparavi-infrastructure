@@ -1,0 +1,24 @@
+- name: Aparavi AppAgent | Download installer
+  get_url:
+    url: https://aparavi.jfrog.io/artifactory/aparavi-installers-public/linux-installer-latest.run
+    dest: /tmp/linux-installer-latest.run
+    mode: '0775'
+
+
+- name: Aparavi AppAgent | Install AppAgent
+  ansible.builtin.shell: ./linux-installer-latest.run -- /APPTYPE={{ app_type }} /BINDTO={{ platform_bind_addr }} /DBTYPE={{ db_type }} /DBHOST={{ db_addr }} /DBPORT={{ db_port }} /DBUSER={{ db_user }} /DBPSWD={{ db_passwd }} /SILENT /NOSTART
+  args:
+    chdir: /tmp/
+    warn: no
+
+
+- name: Aparavi AppAgent | Template config
+  ansible.builtin.shell: ./linux-installer-latest.run -- /APPTYPE={{ app_type }} /BINDTO={{ platform_bind_addr }} /DBTYPE={{ db_type }} /DBHOST={{ db_addr }} /DBPORT={{ db_port }} /DBUSER={{ db_user }} /DBPSWD={{ db_passwd }} /SILENT /NOSTART
+  args:
+    chdir: /tmp/
+    warn: no
+  tags: never
+
+
+- name: Aparavi AppAgent | Run the AppAgent
+  ansible.builtin.shell: /opt/aparavi-data-ia/aggregator-collector/app/startapp

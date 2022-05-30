@@ -1,0 +1,5 @@
+---
+- name: Restart Aparavi AppAgent
+  systemd:
+    name: aparavi-data-ia-aggregator-collector
+    state: restarted

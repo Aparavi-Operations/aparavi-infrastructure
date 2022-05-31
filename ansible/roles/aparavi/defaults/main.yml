@@ -1,7 +1,7 @@
 # App.
-app_type: "aggregator-collector"
-platform_bind_addr: "test.paas.aparavi.com"
-
+aparavi_app_type: "aggregator-collector"
+aparavi_platform_bind_addr: "preview.aparavi.com"
+##aparavi_parent_object: ""
 
 # Database.
 db_type: "mysql"

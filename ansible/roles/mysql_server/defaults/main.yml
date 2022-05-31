@@ -15,4 +15,4 @@ mysql_appuser_password: blankpassword
 mysql_service_enabled: true
 mysql_service_state: started
 
-mysql_db_name: appagent
+mysql_db_name: aparavi-appagent

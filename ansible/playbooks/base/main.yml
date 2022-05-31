@@ -1,9 +1,16 @@
 ---
 
-- name: base
+- name: Aparavi Debian 11
   hosts: all
   become: yes
+  gather_facts: yes
   roles:
+    - os_hardening
+    - ssh_hardening
+    - mysql_server
+    - aparavi
+    - wazuh-agent
+    - clamav-agent
     - prometheus-node-exporter
     - logs-collection
   vars:
@@ -13,3 +20,6 @@
     - node_meta_component: 'appagent'
     - node_meta_subcomponent: 'app'
     - node_meta_service_instance: 'new_client_name'
+    - ssh_client_password_login: true
+    - ssh_server_password_login: true
+    - sshd_authenticationmethods: "publickey password"

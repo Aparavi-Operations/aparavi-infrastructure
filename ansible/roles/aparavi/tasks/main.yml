@@ -19,12 +19,11 @@
   notify: Restart Aparavi AppAgent
 
 
+- name: Aparavi AppAgent | Run the AppAgent
+  ansible.builtin.shell: /opt/aparavi-data-ia/aggregator-collector/app/startapp
+
 - name: Aparavi AppAgent | Copy configuration file
   template:
     src:  config.json.j2
     dest: /etc/opt/aparavi-data-ia/aggregator-collector/config/config.json
   notify: Restart Aparavi AppAgent
-
-
-- name: Aparavi AppAgent | Run the AppAgent
-  ansible.builtin.shell: /opt/aparavi-data-ia/aggregator-collector/app/startapp

@@ -1,0 +1,64 @@
+
+---
+
+- name: 'ClamAV agent | Install required packages'
+  apt:
+    name: 'clamav-daemon'
+
+- name: 'ClamAV agent | Daemon started and enabled'
+  systemd:
+    service: 'clamav-daemon'
+    enabled: true
+    state: 'started'
+
+- name: 'ClamAV agent | Get service facts'
+  service_facts:
+
+- name: 'ClamAV agent | Disable clamav-freshclam service'
+  service:
+    name: 'clamav-freshclam'
+    state: 'stopped'
+    enabled: false
+  when: "'clamav-freshclam' in services"
+
+- name: 'ClamAV agent | configure cron for stop clamav-daemon and update daily'
+  cron:
+    name: 'clamav-update'
+    cron_file: 'clamav-update'
+    minute: '10'
+    hour: '2'
+    day: '*'
+    weekday: '*'
+    month: '*'
+    job: >-
+      /bin/systemctl stop clamav-daemon && sudo -u clamav /usr/bin/nice -n 19 /usr/bin/freshclam | logger -t clamav-freshclam -i && /bin/systemctl start clamav-daemon
+    user: 'root'
+    state: 'present'
+
+- name: 'ClamAV agent | Daily scan'
+  cron:
+    name: 'clamav'
+    cron_file: 'clamav'
+    minute: '0'
+    hour: '2'
+    day: '*'
+    weekday: '*'
+    month: '*'
+    job: '/usr/bin/nice -n 19 /usr/bin/clamdscan --fdpass --config-file=/etc/clamav/clamd.conf / 2>/dev/null | logger -t clamdscan -i'
+    user: 'root'
+    state: 'present'
+
+- name: 'ClamAV agent | clamav-daemon tuning'
+  blockinfile:
+    path: '/etc/systemd/system/clamav-daemon.service.d/extend.conf'
+    insertafter: "\\[Service\\]"
+    block: |
+      CPUQuota=20%
+      Nice = 19
+      OOMScoreAdjust=1000
+      IOSchedulingPriority = 7
+  notify: 'Restart clamav-daemon'
+
+
+
+

@@ -7,8 +7,9 @@
     - prometheus-node-exporter
     - logs-collection
   vars:
-    - grafana_url: 'https://dashboard.aparavi.com'
     - logstash_address: 'logstash.aparavi.com'
-    - es_url: 'https://es.aparavi.com:9200'
-    - kibana_url: 'https://kibana.aparavi.com'
-    - victoriametrics_url: 'https://vm.aparavi.com'
+    - node_meta_env: 'prod'
+    - node_meta_service: 'aparavi'
+    - node_meta_component: 'appagent'
+    - node_meta_subcomponent: 'app'
+    - node_meta_service_instance: 'new_client_name'

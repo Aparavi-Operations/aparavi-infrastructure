@@ -1,0 +1,6 @@
+---
+- name: Wazuh agent | Restart wazuh agent
+  systemd:
+    name: wazuh-agent
+    state: restarted
+  when: wazuh_agent_service_state != 'stopped'

@@ -1,0 +1,11 @@
+---
+
+# wazuh_repository_fqdn: "packages.wazuh.com"
+wazuh_repository_key_url: "https://packages.wazuh.com/key/GPG-KEY-WAZUH"
+wazuh_repository_key_id: "0DCFCA5547B19D2A6099506096B3EE5F29111145"
+wazuh_agent_service_state: "started"
+wazuh_main_version: "4"
+wazuh_agent_full_version: "4.3.1-1"
+
+wazuh_manager_host: "wazuh.paas.aparavi.com"
+client_name: "aparavi_test"

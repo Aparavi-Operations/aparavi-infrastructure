@@ -8,8 +8,10 @@
   roles:
     - os_hardening
     - ssh_hardening
-    - mysql_server
+    - wazuh-agent
     - aparavi
+    - wazuh-agent
+    - clamav-agent
   vars:
     - ssh_client_password_login: true
     - ssh_server_password_login: true

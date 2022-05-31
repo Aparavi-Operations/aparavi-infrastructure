@@ -29,4 +29,4 @@ ansible-galaxy install -r roles/requirements.yml
 
 
 ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansible/playbooks/base/main.yml -i 127.0.0.1, -v \
-    --extra-vars "mysql_appuser_name=$MYSQL_APPUSER_NAME aparavi_parent_object=$APARAVI_PARENT_OBJECT_ID node_meta_service_instance=$NODE_META_SERVICE_INSTANCE"
+    --extra-vars "mysql_appuser_name=$MYSQL_APPUSER_NAME aparavi_platform_bind_addr=$APARAVI_PLATFORM_BIND_ADDR node_meta_service_instance=$NODE_META_SERVICE_INSTANCE aparavi_parent_object=$APARAVI_PARENT_OBJECT_ID logstash_address=$LOGSTASH_ADDRESS"

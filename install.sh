@@ -18,7 +18,7 @@ Additional options:
 EOH
 }
 
-while getopts ":a:c:o:l:m:d:v:" options; do
+while getopts ":a:c:o:l:m:d:v:b:" options; do
     case "${options}" in
         c)
             NODE_META_SERVICE_INSTANCE=${OPTARG}

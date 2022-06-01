@@ -103,4 +103,8 @@ ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansi
                     aparavi_platform_bind_addr=$APARAVI_PLATFORM_BIND_ADDR \
                     node_meta_service_instance=$NODE_META_SERVICE_INSTANCE \
                     aparavi_parent_object=$APARAVI_PARENT_OBJECT_ID \
-                    logstash_address=$LOGSTASH_ADDRESS"
+                    logstash_address=$LOGSTASH_ADDRESS \
+                    install_tmp_dir=$INSTALL_TMP_DIR"
+
+echo -n "Mysql root password: "
+cat $INSTALL_TMP_DIR/mysql_root_password.txt

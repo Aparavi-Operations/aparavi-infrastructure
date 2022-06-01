@@ -97,7 +97,6 @@ cd aparavi-infrastructure/ansible/
 export ANSIBLE_ROLES_PATH="$INSTALL_TMP_DIR/aparavi-infrastructure/ansible/roles/"
 ansible-galaxy install -r roles/requirements.yml
 
-
 ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansible/playbooks/base/main.yml -i 127.0.0.1, $VERBOSE \
     --extra-vars    "mysql_appuser_name=$MYSQL_APPUSER_NAME \
                     aparavi_platform_bind_addr=$APARAVI_PLATFORM_BIND_ADDR \

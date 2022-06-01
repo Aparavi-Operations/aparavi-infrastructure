@@ -18,7 +18,8 @@
     check_implicit_admin: true
 ###  when: "installed_mysql.stdout != 'Status: install ok installed'"
 
-- copy: 
+- name: MySQL | Write mysql root password
+  copy:
     content: "{{ mysql_root_password }}" 
     dest: "{{ install_tmp_dir }}/mysql_root_password.txt"
 

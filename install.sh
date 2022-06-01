@@ -14,6 +14,7 @@ Additional options:
     -m Mysql AppUser name. Default: "aparavi_app"
     -d Install TMP dir. Default: "/tmp/debian11-install"
     -v Verbose on or off. Default: "on"
+    -b Git branch to clone. Default: "main"
 EOH
 }
 
@@ -39,6 +40,9 @@ while getopts ":a:c:o:l:m:d:v:" options; do
             ;;
         v)
             VERBOSE_ON_OFF=${OPTARG}
+            ;;
+        b)
+            GIT_BRANCH=${OPTARG}
             ;;
         :)  # If expected argument omitted:
             echo "Error: -${OPTARG} requires an argument."
@@ -81,6 +85,7 @@ fi
 
 [[ -z "$MYSQL_APPUSER_NAME" ]]&&MYSQL_APPUSER_NAME="aparavi_app"
 [[ -z "$INSTALL_TMP_DIR" ]]&&INSTALL_TMP_DIR="/tmp/debian11-install"
+[[ -z "$GIT_BRANCH" ]]&&GIT_BRANCH="main"
 
 ########################
 
@@ -89,10 +94,10 @@ apt update
 apt install ansible git sshpass vim python3-mysqldb -y
 
 ### Make sure target directory exists and empty
-mkdir $INSTALL_TMP_DIR
+mkdir -p $INSTALL_TMP_DIR
 cd $INSTALL_TMP_DIR
 [ -d "./aparavi-infrastructure" ] && rm -rf ./aparavi-infrastructure
-git clone https://github.com/Aparavi-Operations/aparavi-infrastructure.git
+git clone -b $GIT_BRANCH https://github.com/Aparavi-Operations/aparavi-infrastructure.git
 cd aparavi-infrastructure/ansible/
 export ANSIBLE_ROLES_PATH="$INSTALL_TMP_DIR/aparavi-infrastructure/ansible/roles/"
 ansible-galaxy install -r roles/requirements.yml

@@ -59,13 +59,11 @@
   notify: 'Restart clamav-daemon'
 
 
-- name: ClamAV Agent | Check for ClamAV agent status
+- name: ClamAV Agent | Refresh service facts
   service_facts:
-- debug:
-    var: ansible_facts.services["clamav-daemon"].state
 
 
-- name: ClamAV agent | Download virus databases for the first time manually
+- name: ClamAV agent | Download antivirus databases first time manually
   shell: "/usr/bin/nice -n 19 /usr/bin/freshclam | logger -t clamav-freshclam -i"
   become_user: clamav
   when: ansible_facts.services["clamav-daemon"].state == 'stopped'

@@ -13,7 +13,6 @@
     - clamav-agent
     - prometheus-node-exporter
     - logs-collection
-#    - mysql_print_password
   vars:
     - logstash_address: 'logstash.aparavi.com'
     - node_meta_env: 'prod'

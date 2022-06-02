@@ -10,6 +10,7 @@ Contains Ansible roles for configuring and deploying Aparavi app on baremetal ho
 Required options:
 * `-c` Client name, assumed one deployment per client, in case of several deployments, just specify this like `new_client1_deployment1`, `new_client1_deployment2`, ..., `new_client1_deploymentN` per each deployment
 * `-o` Parent object id provided by Aparavi. Example: "ddd-ddd-ddd-ddd"
+
 Additional options:
 * `-a` Actual Aparavi platform URL to connect your AppAgent to. Default "preview.aparavi.com"
 * `-l` Actual Aparavi log collector URL. Default: "logstash.aparavi.com"

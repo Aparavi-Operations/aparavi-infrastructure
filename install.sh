@@ -109,7 +109,3 @@ ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansi
                     aparavi_parent_object=$APARAVI_PARENT_OBJECT_ID \
                     logstash_address=$LOGSTASH_ADDRESS \
                     install_tmp_dir=$INSTALL_TMP_DIR"
-
-echo "Updating ClamAV databases..."
-/bin/systemctl stop clamav-daemon && sudo -u clamav /usr/bin/nice -n 19 /usr/bin/freshclam | logger -t clamav-freshclam -i && /bin/systemctl start clamav-daemon
-[[ $? -eq 0 ]]&&echo "Done"||echo "Error during ClamAV databases updates"

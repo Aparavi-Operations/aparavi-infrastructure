@@ -112,3 +112,4 @@ ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansi
 
 echo -n "Mysql root password: "
 cat $INSTALL_TMP_DIR/mysql_root_password.txt
+echo

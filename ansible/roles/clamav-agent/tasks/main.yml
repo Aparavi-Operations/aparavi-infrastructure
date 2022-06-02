@@ -59,5 +59,16 @@
   notify: 'Restart clamav-daemon'
 
 
+- name: Check for ClamAV agent status
+   service_facts:
+- debug:
+    var: ansible_facts.services.clamav-daemon.state
+
+
+- name: 'ClamAV agent | Download virus databases for the first time manually'
+  shell: "clamav /usr/bin/nice -n 19 /usr/bin/freshclam | logger -t clamav-freshclam -i"
+  when: ansible_facts.services.clamav-daemon.state
+  notify: 'Restart clamav-daemon'
+
 
 

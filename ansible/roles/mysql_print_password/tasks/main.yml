@@ -1,0 +1,8 @@
+---
+
+- name: MySQL | Retrieving MySQL password
+  debug:
+    msg: 
+      - "Make sure to copy your database root password now."
+      - "MySQL root password: {{ mysql_root_password }}"
+      - "Make sure you copied the password without the closing quotes"

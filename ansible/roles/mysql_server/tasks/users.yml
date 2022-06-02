@@ -7,7 +7,7 @@
 - name: MySQL | Retrieving MySQL password
   debug:
     msg: 
-      - "Make sure to copy your database root password now. You won’t be able to see it again!"
+      - "Make sure to copy your database root password now."
       - "MySQL root password: {{ mysql_root_password }}"
       - "Make sure you copied the password without the closing quotes"
 
@@ -18,13 +18,18 @@
     check_implicit_admin: true
 ###  when: "installed_mysql.stdout != 'Status: install ok installed'"
 
+- name: MySQL | Write mysql root password
+  copy:
+    content: "{{ mysql_root_password }}" 
+    dest: "{{ install_tmp_dir }}/mysql_root_password.txt"
+
 - name: MySQL | Create .my.cnf
   template:
-   src: "client.my.cnf.j2"
-   dest: "/root/.my.cnf"
-   owner: root
-   group: root
-   mode: 0600
+    src: "client.my.cnf.j2"
+    dest: "/root/.my.cnf"
+    owner: root
+    group: root
+    mode: 0600
 
 - name: MySQL | Ensure MySQL users are present
   mysql_user:

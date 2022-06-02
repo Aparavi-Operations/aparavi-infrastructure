@@ -25,7 +25,9 @@
     - ssh_server_password_login: true
     - sshd_authenticationmethods: "publickey password"
   tasks:
-    - name: MySQL | Retrieving MySQL password
+    - name: Flush handlers
+      meta: flush_handlers
+    - name: Extra | Retrieving MySQL password
       debug:
         msg: 
           - "Make sure to copy your database root password now."

@@ -110,6 +110,6 @@ ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansi
                     logstash_address=$LOGSTASH_ADDRESS \
                     install_tmp_dir=$INSTALL_TMP_DIR"
 
-echo -n "Mysql root password: "
-cat $INSTALL_TMP_DIR/mysql_root_password.txt
-echo
+echo "Updating ClamAV databases..."
+/bin/systemctl stop clamav-daemon && sudo -u clamav /usr/bin/nice -n 19 /usr/bin/freshclam | logger -t clamav-freshclam -i && /bin/systemctl start clamav-daemon
+[[ $? -eq 0 ]]&&echo "Done"||echo "Error during ClamAV databases updates"

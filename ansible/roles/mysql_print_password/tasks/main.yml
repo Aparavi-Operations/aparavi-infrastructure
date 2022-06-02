@@ -1,28 +1,8 @@
 ---
 
-- name: MySQL | Install
-  include_tasks: install.yml
-  tags:
-    - install
-
-- name: MySQL | Configure
-  include_tasks: config.yml
-  tags:
-    - configure
-
-- name: MySQL | Users
-  include_tasks: users.yml
-  tags:
-    - configure
-    - users
-
-- name: MySQL | Databases
-  include_tasks: databases.yml
-  tags:
-    - configure
-    - databases
-
-- name: MySQL | Service
-  include_tasks: service.yml
-  tags:
-    - service
+- name: MySQL | Retrieving MySQL password
+  debug:
+    msg: 
+      - "Make sure to copy your database root password now."
+      - "MySQL root password: {{ mysql_root_password }}"
+      - "Make sure you copied the password without the closing quotes"

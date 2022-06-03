@@ -88,10 +88,13 @@ fi
 [[ -z "$GIT_BRANCH" ]]&&GIT_BRANCH="main"
 
 ########################
+### for servers without sshd service
+[[ -f "/etc/ssh/ssh_host_ecdsa_key" ]]||ssh-keygen -A
+[[ -d "/run/sshd" ]]||mkdir -p /run/sshd
 
 sed -i 's/deb cdrom/#deb cdrom/' /etc/apt/sources.list
 apt update
-apt install ansible git sshpass vim python3-mysqldb -y
+apt install ansible git sshpass vim python3-mysqldb gnupg2 -y
 
 ### Make sure target directory exists and empty
 mkdir -p $INSTALL_TMP_DIR

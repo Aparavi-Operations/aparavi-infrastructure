@@ -7,6 +7,8 @@
     owner: '{{ ssh_owner }}'
     group: '{{ ssh_group }}'
   notify: Restart sshd
+  tags:
+    - ssh_hardening
 
 - name: Create ssh authorized principals directories
   file:
@@ -16,6 +18,8 @@
     group: '{{ item.directorygroup | default(ssh_group) }}'
     state: directory
   loop: '{{ ssh_authorized_principals }}'
+  tags:
+    - ssh_hardening
 
 - name: Set ssh authorized principals
   template:
@@ -25,3 +29,5 @@
     owner: '{{ item.owner| default(ssh_owner) }}'
     group: '{{ item.group | default(ssh_group) }}'
   loop: '{{ ssh_authorized_principals }}'
+  tags:
+    - ssh_hardening

@@ -3,6 +3,8 @@
   package:
     name: '{{ ssh_selinux_packages }}'
     state: present
+  tags:
+    - ssh_hardening
 
 - name: Authorize {{ ssh_server_ports }} ports for selinux
   seport:
@@ -11,6 +13,8 @@
     setype: ssh_port_t
     state: present
   loop: '{{ ssh_server_ports }}'
+  tags:
+    - ssh_hardening
 
 - name: Check if ssh_password module is already installed
   shell: 'set -o pipefail && semodule -l | grep ssh_password'
@@ -20,6 +24,8 @@
   failed_when: false
   changed_when: false
   check_mode: false
+  tags:
+    - ssh_hardening
 
 # The following tasks only get executed when selinux is in state enforcing,
 # UsePam is 'no' and the ssh_password module is not installed. See this issue for
@@ -27,6 +33,8 @@
 - when:
     - not (ssh_use_pam | bool)
     - ('ssh_password' not in ssh_password_module.stdout)
+  tags:
+    - ssh_hardening
   block:
     - name: Create selinux custom policy drop folder
       file:
@@ -62,3 +70,5 @@
   when:
     - ssh_use_pam | bool
     - ('ssh_password' in ssh_password_module.stdout)
+  tags:
+    - ssh_hardening

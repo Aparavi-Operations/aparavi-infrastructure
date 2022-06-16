@@ -4,15 +4,21 @@
 - name: 'ClamAV agent | Install required packages'
   apt:
     name: 'clamav-daemon'
+  tags:
+    - clamav_agent
 
 - name: 'ClamAV agent | Daemon started and enabled'
   systemd:
     service: 'clamav-daemon'
     enabled: true
     state: 'started'
+  tags:
+    - clamav_agent
 
 - name: 'ClamAV agent | Get service facts'
   service_facts:
+  tags:
+    - clamav_agent
 
 - name: 'ClamAV agent | Disable clamav-freshclam service'
   service:
@@ -20,6 +26,8 @@
     state: 'stopped'
     enabled: false
   when: "'clamav-freshclam' in services"
+  tags:
+    - clamav_agent
 
 - name: 'ClamAV agent | configure cron for stop clamav-daemon and update daily'
   cron:
@@ -34,6 +42,8 @@
       /bin/systemctl stop clamav-daemon && sudo -u clamav /usr/bin/nice -n 19 /usr/bin/freshclam | logger -t clamav-freshclam -i && /bin/systemctl start clamav-daemon
     user: 'root'
     state: 'present'
+  tags:
+    - clamav_agent
 
 - name: 'ClamAV agent | Daily scan'
   cron:
@@ -47,6 +57,8 @@
     job: '/usr/bin/nice -n 19 /usr/bin/clamdscan --fdpass --config-file=/etc/clamav/clamd.conf / 2>/dev/null | logger -t clamdscan -i'
     user: 'root'
     state: 'present'
+  tags:
+    - clamav_agent
 
 - name: 'ClamAV agent | clamav-daemon tuning'
   blockinfile:
@@ -57,14 +69,18 @@
       OOMScoreAdjust=1000
       IOSchedulingPriority = 7
   notify: 'Restart clamav-daemon'
-
+  tags:
+    - clamav_agent
 
 - name: ClamAV Agent | Refresh service facts
   service_facts:
-
+  tags:
+    - clamav_agent
 
 - name: ClamAV agent | Download antivirus databases first time manually
   shell: "/usr/bin/nice -n 19 /usr/bin/freshclam | logger -t clamav-freshclam -i"
   become_user: clamav
   when: ansible_facts.services["clamav-daemon"].state == 'stopped'
   notify: 'Restart clamav-daemon'
+  tags:
+    - clamav_agent

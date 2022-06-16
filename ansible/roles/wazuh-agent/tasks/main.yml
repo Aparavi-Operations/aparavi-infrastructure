@@ -5,12 +5,16 @@
     id: "{{ wazuh_repository_key_id }}"
     url: "{{ wazuh_repository_key_url }}"
     state: present
+  tags:
+    - wazuh_agent
 
 - name: Wazuh agent | Add repository
   apt_repository:
     filename: wazuh_repo
     repo: "deb https://packages.wazuh.com/{{ wazuh_main_version }}.x/apt/ stable main"
     state: present
+  tags:
+    - wazuh_agent
 
 - name: Wazuh agent | Install wazuh agent
   apt:
@@ -19,6 +23,8 @@
   environment:
     WAZUH_MANAGER: "{{ wazuh_manager_host }}"
     # WAZUH_AGENT_NAME: "{{ client_name }}-{{ ansible_hostname }}"
+  tags:
+    - wazuh_agent
 
 
 - name: Wazuh agent | Ensure Wazuh agent is started and enabled
@@ -28,6 +34,9 @@
     enabled: true
     daemon_reload: true
   when: wazuh_agent_service_state != 'stopped'
+  tags:
+    - wazuh_agent
+
 
 - name: Wazuh agent | Ensure Wazuh agent is stopped and disabled (if wazuh_agent_service_state "started")
   service:
@@ -36,3 +45,5 @@
     enabled: false
     daemon_reload: true
   when: wazuh_agent_service_state == 'stopped'
+  tags:
+    - wazuh_agent

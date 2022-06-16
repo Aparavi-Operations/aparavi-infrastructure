@@ -3,6 +3,8 @@
     url: https://aparavi.jfrog.io/artifactory/aparavi-installers-public/linux-installer-latest.run
     dest: /tmp/linux-installer-latest.run
     mode: '0775'
+  tags:
+    - aparavi_appagent
 
 
 - name: Aparavi AppAgent | Retrieving MySQL password
@@ -11,6 +13,7 @@
       - "Check your MySQL user password: {{ mysql_appuser_password }}"
   tags:
     - never
+    - aparavi_appagent
 
 - name: Aparavi AppAgent | Install AppAgent
   ansible.builtin.shell: ./linux-installer-latest.run -- /APPTYPE={{ aparavi_app_type }} /BINDTO={{ aparavi_platform_bind_addr }} /DBTYPE={{ db_type }} /DBHOST={{ db_addr }} /DBPORT={{ db_port }} /DBUSER={{ db_user }} /DBPSWD={{ db_passwd }} /SILENT /NOSTART
@@ -18,18 +21,26 @@
     chdir: /tmp/
     warn: no
   notify: Restart Aparavi AppAgent
+  tags:
+    - aparavi_appagent
 
 
 - name: Aparavi AppAgent | Run the AppAgent
   ansible.builtin.shell: /opt/aparavi-data-ia/aggregator-collector/app/startapp
+  tags:
+    - aparavi_appagent
 
 
 - name: Aparavi AppAgent | Wait until default config file created
   wait_for:
     path: /etc/opt/aparavi-data-ia/aggregator-collector/config/config.json
+  tags:
+    - aparavi_appagent
 
 - name: Aparavi AppAgent | Copy configuration file
   template:
     src:  config.json.j2
     dest: /etc/opt/aparavi-data-ia/aggregator-collector/config/config.json
   notify: Restart Aparavi AppAgent
+  tags:
+    - aparavi_appagent

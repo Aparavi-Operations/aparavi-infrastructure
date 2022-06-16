@@ -26,7 +26,7 @@
   when: os_auditd_enabled | bool
   tags:
     - auditd
-    - os_hardenind
+    - os_hardening
 
 - import_tasks: cron.yml
   when: os_cron_enabled | bool

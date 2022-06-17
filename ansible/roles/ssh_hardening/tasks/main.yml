@@ -1,5 +1,9 @@
 ---
-- include_tasks: hardening.yml
+- include_tasks:
+    file: hardening.yml
+    apply:
+      tags:
+        - ssh_hardening
   when: ssh_hardening_enabled | bool
   tags:
     - ssh_hardening

@@ -15,10 +15,11 @@ Additional options:
     -d Install TMP dir. Default: "/tmp/debian11-install"
     -v Verbose on or off. Default: "on"
     -b Git branch to clone. Default: "main"
+    -n Node profile for deploying. Default: "full"
 EOH
 }
 
-while getopts ":a:c:o:l:m:d:v:b:" options; do
+while getopts ":a:c:o:l:m:d:v:b:n:" options; do
     case "${options}" in
         c)
             NODE_META_SERVICE_INSTANCE=${OPTARG}
@@ -44,6 +45,9 @@ while getopts ":a:c:o:l:m:d:v:b:" options; do
         b)
             GIT_BRANCH=${OPTARG}
             ;;
+	n)
+	    NODE_PROFILE=${OPTARG}
+	    ;;
         :)  # If expected argument omitted:
             echo "Error: -${OPTARG} requires an argument."
             usage
@@ -87,6 +91,27 @@ fi
 [[ -z "$INSTALL_TMP_DIR" ]]&&INSTALL_TMP_DIR="/tmp/debian11-install"
 [[ -z "$GIT_BRANCH" ]]&&GIT_BRANCH="main"
 
+###### Node profile dictionary ######
+[[ -z "$NODE_PROFILE" ]]&&NODE_PROFILE="full"
+
+    case "${NODE_PROFILE}" in
+        full)
+            NODE_ANSIBLE_TAGS=""
+            ;;
+        basic)
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening"
+            ;;
+        secure)
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,clamav_agent,wazuh_agent"
+            ;;
+        *)
+	    echo "Error: please provide node profile (\"-n\" switch) from the list: basic, secure, full"
+            usage
+            exit 1
+            ;;
+    esac
+
+
 ########################
 ### for servers without sshd service
 [[ -f "/etc/ssh/ssh_host_ecdsa_key" ]]||ssh-keygen -A
@@ -95,6 +120,7 @@ fi
 sed -i 's/deb cdrom/#deb cdrom/' /etc/apt/sources.list
 apt update
 apt install ansible git sshpass vim python3-mysqldb gnupg2 -y
+
 
 ### Make sure target directory exists and empty
 mkdir -p $INSTALL_TMP_DIR
@@ -105,7 +131,7 @@ cd aparavi-infrastructure/ansible/
 export ANSIBLE_ROLES_PATH="$INSTALL_TMP_DIR/aparavi-infrastructure/ansible/roles/"
 ansible-galaxy install -r roles/requirements.yml
 
-ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansible/playbooks/base/main.yml -i 127.0.0.1, $VERBOSE \
+ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansible/playbooks/base/main.yml -i 127.0.0.1, $VERBOSE $NODE_ANSIBLE_TAGS \
     --extra-vars    "mysql_appuser_name=$MYSQL_APPUSER_NAME \
                     aparavi_platform_bind_addr=$APARAVI_PLATFORM_BIND_ADDR \
                     node_meta_service_instance=$NODE_META_SERVICE_INSTANCE \

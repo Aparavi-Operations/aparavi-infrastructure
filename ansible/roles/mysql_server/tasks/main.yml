@@ -1,33 +1,53 @@
 ---
 
 - name: MySQL | Install
-  import_tasks: install.yml
+  include_tasks:
+    file: install.yml
+    apply:
+      tags:
+        - mysql_server
   tags:
     - install
     - mysql_server
 
 - name: MySQL | Configure
-  import_tasks: config.yml
+  include_tasks:
+    file: config.yml
+    apply:
+      tags:
+        - mysql_server
   tags:
     - configure
     - mysql_server
 
 - name: MySQL | Users
-  import_tasks: users.yml
+  include_tasks: 
+    file: users.yml
+    apply:
+      tags:
+        - mysql_server
   tags:
     - configure
     - users
     - mysql_server
 
 - name: MySQL | Databases
-  import_tasks: databases.yml
+  include_tasks: 
+    file: databases.yml
+    apply:
+      tags:
+        - mysql_server
   tags:
     - configure
     - databases
     - mysql_server
 
 - name: MySQL | Service
-  import_tasks: service.yml
+  include_tasks: 
+    file: service.yml
+    apply:
+      tags:
+        - mysql_server
   tags:
     - service
     - mysql_server

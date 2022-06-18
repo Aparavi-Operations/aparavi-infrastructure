@@ -75,6 +75,24 @@ while getopts ":a:c:o:l:m:d:v:b:n:" options; do
     esac
 done
 
+###### required switches checking ###### 
+function check_c_switch {
+if [[ -z "$NODE_META_SERVICE_INSTANCE" ]]; then
+    echo "Error: Option '-c' is required for selected node profile."
+    usage
+    exit 1
+fi
+}
+
+function check_o_switch {
+if [[ -z "$APARAVI_PARENT_OBJECT_ID" ]]; then
+    echo "Error: Option '-o' is required for selected node profile."
+    usage
+    exit 1
+fi
+}
+###### end of required switches checking ###### 
+
 ###### Node profile dictionary ######
 [[ -z "$NODE_PROFILE" ]]&&NODE_PROFILE="basic"
 
@@ -108,25 +126,6 @@ done
             ;;
     esac
 ###### end of node profile dictionary ######
-
-
-###### required switches checking ###### 
-function check_c_switch {
-if [[ -z "$NODE_META_SERVICE_INSTANCE" ]]; then
-    echo "Error: Option '-c' is required for selected node profile."
-    usage
-    exit 1
-fi
-}
-
-function check_o_switch {
-if [[ -z "$APARAVI_PARENT_OBJECT_ID" ]]; then
-    echo "Error: Option '-o' is required for selected node profile."
-    usage
-    exit 1
-fi
-}
-###### end of required switches checking ###### 
 
 
 shift "$((OPTIND-1))"

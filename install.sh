@@ -3,19 +3,34 @@
 usage () {
     cat <<EOH
 
-$0  -c "client_name" -o "ddd-ddd-ddd-ddd" [additional_options]
+$0 -n "full" -c "client_name" -o "ddd-ddd-ddd-ddd" [additional_options]
 
 Required options:
+    -n Node profile for deploying. Default: "basic"
+       basic      - OS ans SSH hardening included only
+       secure     - basic profile + Wazuh agent + ClamAV agent
+       monitoring - basic profile + logs shipping agent + monitoring metrics
+                    requires -c switch
+       appliance  - basic profile + MySQL server + Aparavi AppAgent
+                    requires -o switch
+       full       - all featured above
+                    reequires both -c and -o switches
+
+       ############ lazy dba profile ############
+       mysql_only  - basic profile + MySQL server
+
     -c Client name. Example "Aparavi"
     -o Aparavi parent object ID. Example: "ddd-ddd-ddd-ddd"
+
 Additional options:
     -a Aparavi platform bind address. Default "preview.aparavi.com"
     -l Logstash address. Default: "logstash.aparavi.com"
     -m Mysql AppUser name. Default: "aparavi_app"
+
+Nerds options:
     -d Install TMP dir. Default: "/tmp/debian11-install"
     -v Verbose on or off. Default: "on"
     -b Git branch to clone. Default: "main"
-    -n Node profile for deploying. Default: "full"
 EOH
 }
 
@@ -45,9 +60,9 @@ while getopts ":a:c:o:l:m:d:v:b:n:" options; do
         b)
             GIT_BRANCH=${OPTARG}
             ;;
-	n)
-	    NODE_PROFILE=${OPTARG}
-	    ;;
+        n)
+	        NODE_PROFILE=${OPTARG}
+	        ;;
         :)  # If expected argument omitted:
             echo "Error: -${OPTARG} requires an argument."
             usage
@@ -60,11 +75,60 @@ while getopts ":a:c:o:l:m:d:v:b:n:" options; do
     esac
 done
 
-if [[ $OPTIND -eq 1 ]]; then
-    echo "Error: No options were passed. Options '-c' and '-o' are required."
+###### Node profile dictionary ######
+[[ -z "$NODE_PROFILE" ]]&&NODE_PROFILE="basic"
+
+    case "${NODE_PROFILE}" in
+        basic)
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening"
+            ;;
+        secure)
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,clamav_agent,wazuh_agent"
+            ;;
+        monitoring)
+            check_c_switch
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,logs_collection,prometheus_node_exporter"
+            ;;
+        appliance)
+            check_o_switch
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent"
+            ;;
+        full)
+            check_c_switch
+            check_o_switch
+            NODE_ANSIBLE_TAGS=""
+            ;;
+        mysql_only)
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server"
+            ;;
+        *)
+	    echo "Error: please provide node profile (\"-n\" switch) from the list: basic, secure, monitoring, appliance, full, mysql_only"
+            usage
+            exit 1
+            ;;
+    esac
+###### end of node profile dictionary ######
+
+
+###### required switches checking ###### 
+function check_c_switch {
+if [[ -z "$NODE_META_SERVICE_INSTANCE" ]]; then
+    echo "Error: Option '-c' is required for selected node profile."
     usage
     exit 1
 fi
+}
+
+function check_o_switch {
+if [[ -z "$APARAVI_PARENT_OBJECT_ID" ]]; then
+    echo "Error: Option '-o' is required for selected node profile."
+    usage
+    exit 1
+fi
+}
+###### end of required switches checking ###### 
+
+
 shift "$((OPTIND-1))"
 if [[ $# -ge 1 ]]; then
     echo "Error: '$@' - non-option arguments. Don't use them"
@@ -72,16 +136,7 @@ if [[ $# -ge 1 ]]; then
     exit 1
 fi
 
-if [[ -z "$NODE_META_SERVICE_INSTANCE" ]]; then
-    echo "Error: Options '-c' and '-o' are required."
-    usage
-    exit 1
-fi
-if [[ -z "$APARAVI_PARENT_OBJECT_ID" ]]; then
-    echo "Error: Options '-c' and '-o' are required."
-    usage
-    exit 1
-fi
+
 [[ "$VERBOSE_ON_OFF" == "off" ]]&&VERBOSE=""||VERBOSE="-v"
 
 [[ -z "$APARAVI_PLATFORM_BIND_ADDR" ]]&&APARAVI_PLATFORM_BIND_ADDR="preview.aparavi.com"
@@ -90,26 +145,6 @@ fi
 [[ -z "$MYSQL_APPUSER_NAME" ]]&&MYSQL_APPUSER_NAME="aparavi_app"
 [[ -z "$INSTALL_TMP_DIR" ]]&&INSTALL_TMP_DIR="/tmp/debian11-install"
 [[ -z "$GIT_BRANCH" ]]&&GIT_BRANCH="main"
-
-###### Node profile dictionary ######
-[[ -z "$NODE_PROFILE" ]]&&NODE_PROFILE="full"
-
-    case "${NODE_PROFILE}" in
-        full)
-            NODE_ANSIBLE_TAGS=""
-            ;;
-        basic)
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening"
-            ;;
-        secure)
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,clamav_agent,wazuh_agent"
-            ;;
-        *)
-	    echo "Error: please provide node profile (\"-n\" switch) from the list: basic, secure, full"
-            usage
-            exit 1
-            ;;
-    esac
 
 
 ########################
@@ -126,11 +161,14 @@ apt install ansible git sshpass vim python3-mysqldb gnupg2 -y
 mkdir -p $INSTALL_TMP_DIR
 cd $INSTALL_TMP_DIR
 [ -d "./aparavi-infrastructure" ] && rm -rf ./aparavi-infrastructure
+
+###### download all ansible stuff to the machine ######
 git clone -b $GIT_BRANCH https://github.com/Aparavi-Operations/aparavi-infrastructure.git
 cd aparavi-infrastructure/ansible/
 export ANSIBLE_ROLES_PATH="$INSTALL_TMP_DIR/aparavi-infrastructure/ansible/roles/"
 ansible-galaxy install -r roles/requirements.yml
 
+###### run ansible ######
 ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansible/playbooks/base/main.yml -i 127.0.0.1, $VERBOSE $NODE_ANSIBLE_TAGS \
     --extra-vars    "mysql_appuser_name=$MYSQL_APPUSER_NAME \
                     aparavi_platform_bind_addr=$APARAVI_PLATFORM_BIND_ADDR \

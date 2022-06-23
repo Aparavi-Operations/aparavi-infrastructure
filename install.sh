@@ -127,14 +127,12 @@ fi
     esac
 ###### end of node profile dictionary ######
 
-
 shift "$((OPTIND-1))"
 if [[ $# -ge 1 ]]; then
     echo "Error: '$@' - non-option arguments. Don't use them"
     usage
     exit 1
 fi
-
 
 [[ "$VERBOSE_ON_OFF" == "off" ]]&&VERBOSE=""||VERBOSE="-v"
 
@@ -145,7 +143,6 @@ fi
 [[ -z "$INSTALL_TMP_DIR" ]]&&INSTALL_TMP_DIR="/tmp/debian11-install"
 [[ -z "$GIT_BRANCH" ]]&&GIT_BRANCH="main"
 
-
 ########################
 ### for servers without sshd service
 [[ -f "/etc/ssh/ssh_host_ecdsa_key" ]]||ssh-keygen -A
@@ -154,7 +151,6 @@ fi
 sed -i 's/deb cdrom/#deb cdrom/' /etc/apt/sources.list
 apt update
 apt install ansible git sshpass vim python3-mysqldb gnupg2 -y
-
 
 ### Make sure target directory exists and empty
 mkdir -p $INSTALL_TMP_DIR

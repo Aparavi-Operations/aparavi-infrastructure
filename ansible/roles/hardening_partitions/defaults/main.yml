@@ -1,0 +1,34 @@
+---
+root_fs: ext4
+swap_size: 1g
+var_size: 10g
+vlog_size: 5g
+vlaudit_size: 2g
+home_size: 5g
+tmp_size: 2g
+vtmp_size: 2g
+
+fs_files:
+  - "var": "{{ var_size }}"
+  - "vlog": "{{ vlog_size }}"
+  - "vlaudit": "{{ vlaudit_size }}"
+  - "tmp": "{{ tmp_size }}"
+  - "swap": "{{ swap_size }}"
+  - "vtmp": "{{ vtmp_size }}"
+  - "home": "{{ home_size }}"
+
+fs_file_paths:
+  - "var": "/var/"
+  - "vlog": "/var/log/"
+  - "vlaudit": "/var/log/audit/"
+  - "tmp": "/tmp/"
+  - "vtmp": "/var/tmp/"
+  - "home": "/home/"
+
+fs_options:
+  - "/var" : "nodev" 
+  - "/var/log" : "nodev"
+  - "/var/log/audit" : "nodev"
+  - "/tmp" : "nodev,noexec,nosuid"
+  - "/var/tmp" : "nodev,noexec,nosuid"
+  - "/home" : "nodev"

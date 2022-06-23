@@ -1,0 +1,115 @@
+---
+- name: Create opt dir
+  file:
+    path: /opt
+    state: directory
+    mode: 0755
+
+- name: Create opt dir
+  file:
+    path: /var/log/audit
+    state: directory
+    mode: 0755
+
+- name: Create Filesystem file {{ item.key }} with size {{ item.value }}G
+  community.general.filesize:
+    path: "/opt/{{ item.key }}"
+    size: "{{ item.value }}"
+  with_dict: "{{ fs_files }}"
+
+- name: Create a ext4 filesystem on "/opt/{{ item.key }}" and check disk blocks
+  community.general.filesystem:
+    fstype: ext4
+    dev: "/opt/{{ item.key }}"
+  with_dict: "{{ fs_files }}"
+
+- name: Create new_fs_tmp dir
+  file:
+    path: /new_fs_tmp
+    state: directory
+    mode: 0755
+
+- name: Create new_fs_tmp dir
+  file:
+    path: "/new_fs_tmp/{{ item.key }}"
+    state: directory
+    mode: 0755
+  with_dict: "{{ fs_files }}"
+
+- name: Mount Devices 
+  mount:
+    path: "/new_fs_tmp/{{ item.key }}"
+    src: "/opt/{{ item.key }}"
+    fstype: "{{ root_fs }}"
+    state: mounted
+  with_dict: "{{ fs_files }}"
+
+- name: Rsync /oldroot to /new_fs_tmp for Debian family
+  synchronize:
+    src: "{{ item.value }}"
+    dest: "/new_fs_tmp/{{ item.key }}"
+    archive: yes
+    copy_links: true
+    rsync_opts:
+      - "--exclude=swapfile"
+      - "--exclude=/etc/fstab.*"
+      - "--exclude=/home/ansible/ansible"
+      - "--one-file-system"
+  delegate_to: "{{ inventory_hostname }}"
+  with_dict: "{{ fs_file_paths }}"
+
+- name: Unmount Devices 
+  mount:
+    path: "/new_fs_tmp/{{ item.key }}"
+    src: "/opt/{{ item.key }}"
+    fstype: "{{ root_fs }}"
+    state: absent
+  with_dict: "{{ fs_files }}"
+
+- name: Update fstab for var
+  mount:
+    path: /var
+    src: "/opt/var"
+    fstype: "{{ root_fs }}"
+    opts: nodev
+    state: present
+
+- name: Update fstab for log
+  mount:
+    path: /var/log
+    src: "/opt/vlog"
+    fstype: "{{ root_fs }}"
+    opts: nodev
+    state: present
+
+- name: Update fstab for audit
+  mount:
+    path: /var/log/audit
+    src: "/opt/vlaudit"
+    fstype: "{{ root_fs }}"
+    opts: nodev
+    state: present
+
+- name: Update fstab for tmp
+  mount:
+    path: /tmp
+    src: "/opt/tmp"
+    fstype: "{{ root_fs }}"
+    opts: nodev,noexec,nosuid
+    state: present
+
+- name: Update fstab for home
+  mount:
+    path: /home
+    src: "/opt/home"
+    fstype: "{{ root_fs }}"
+    opts: nodev
+    state: present
+
+- name: Update fstab for vtmp
+  mount:
+    path: /var/tmp
+    src: "/opt/vtmp"
+    fstype: "{{ root_fs }}"
+    opts: nodev,noexec,nosuid
+    state: present

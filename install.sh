@@ -8,6 +8,7 @@ $0 -n "full" -c "client_name" -o "ddd-ddd-ddd-ddd" [additional_options]
 Required options:
     -n Node profile for deploying. Default: "basic"
        basic      - OS ans SSH hardening included only
+       hardening  - OS,SSH and advanced hardening included only  
        secure     - basic profile + Wazuh agent + ClamAV agent
        monitoring - basic profile + logs shipping agent + monitoring metrics
                     requires -c switch
@@ -26,6 +27,8 @@ Additional options:
     -a Aparavi platform bind address. Default "preview.aparavi.com"
     -l Logstash address. Default: "logstash.aparavi.com"
     -m Mysql AppUser name. Default: "aparavi_app"
+    -h Add advanced hardening or not (yes/no). Default: "no"
+    -p Remount partitions for hardening or not (yes/no). Default: "no"
 
 Nerds options:
     -d Install TMP dir. Default: "/tmp/debian11-install"
@@ -34,7 +37,7 @@ Nerds options:
 EOH
 }
 
-while getopts ":a:c:o:l:m:d:v:b:n:" options; do
+while getopts ":a:c:o:l:m:d:v:b:n:h:p:" options; do
     case "${options}" in
         c)
             NODE_META_SERVICE_INSTANCE=${OPTARG}
@@ -62,6 +65,12 @@ while getopts ":a:c:o:l:m:d:v:b:n:" options; do
             ;;
         n)
 	        NODE_PROFILE=${OPTARG}
+	        ;;
+        h)
+	        HARDENING_ADVANCED_ADD=${OPTARG}
+	        ;;
+        p)
+	        HARDENING_PARTITIONS_ADD=${OPTARG}
 	        ;;
         :)  # If expected argument omitted:
             echo "Error: -${OPTARG} requires an argument."
@@ -92,32 +101,42 @@ if [[ -z "$APARAVI_PARENT_OBJECT_ID" ]]; then
 fi
 }
 ###### end of required switches checking ###### 
-
+NODE_ANSIBLE_SKIP_TAGS=""
+[[ -z "$HARDENING_ADVANCED_ADD" ]]&&HARDENING_ADVANCED_ADD="no"
+[[ "$HARDENING_ADVANCED_ADD" == "yes" ]]&&HARDENING_ADVANCED_TAG=",hardening_advanced"||$HARDENING_ADVANCED_TAG=""
+[[ -z "$HARDENING_PARTITIONS_ADD" ]]&&HARDENING_PARTITIONS_ADD="no"
+[[ "$HARDENING_PARTITIONS_ADD" == "yes" ]]&&HARDENING_PARTITIONS_TAG=",hardening_partitions"||$HARDENING_PARTITIONS_TAG=""
 ###### Node profile dictionary ######
 [[ -z "$NODE_PROFILE" ]]&&NODE_PROFILE="basic"
 
     case "${NODE_PROFILE}" in
         basic)
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening"
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
+            ;;
+        hardening)
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,hardening_advanced${HARDENING_PARTITIONS_TAG}"
             ;;
         secure)
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,clamav_agent,wazuh_agent"
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,clamav_agent,wazuh_agent${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
             ;;
         monitoring)
             check_c_switch
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,logs_collection,prometheus_node_exporter"
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,logs_collection,prometheus_node_exporter${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
             ;;
         appliance)
             check_o_switch
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent"
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
             ;;
         full)
             check_c_switch
             check_o_switch
             NODE_ANSIBLE_TAGS=""
+            NODE_ANSIBLE_SKIP_TAGS="--skip-tags notag"
+            [[ "$HARDENING_ADVANCED_ADD" == "yes" ]]&&NODE_ANSIBLE_SKIP_TAGS="${NODE_ANSIBLE_SKIP_TAGS},hardening_advanced"
+            [[ "$HARDENING_PARTITIONS_ADD" == "yes" ]]&&NODE_ANSIBLE_SKIP_TAGS="${NODE_ANSIBLE_SKIP_TAGS},hardening_partitions"
             ;;
         mysql_only)
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server"
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
             ;;
         *)
 	    echo "Error: please provide node profile (\"-n\" switch) from the list: basic, secure, monitoring, appliance, full, mysql_only"
@@ -164,7 +183,7 @@ export ANSIBLE_ROLES_PATH="$INSTALL_TMP_DIR/aparavi-infrastructure/ansible/roles
 ansible-galaxy install -r roles/requirements.yml
 
 ###### run ansible ######
-ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansible/playbooks/base/main.yml -i 127.0.0.1, $VERBOSE $NODE_ANSIBLE_TAGS \
+ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansible/playbooks/base/main.yml -i 127.0.0.1, $VERBOSE $NODE_ANSIBLE_TAGS $NODE_ANSIBLE_SKIP_TAGS \
     --extra-vars    "mysql_appuser_name=$MYSQL_APPUSER_NAME \
                     aparavi_platform_bind_addr=$APARAVI_PLATFORM_BIND_ADDR \
                     node_meta_service_instance=$NODE_META_SERVICE_INSTANCE \

@@ -6,11 +6,23 @@
       - 'gnupg2'
     state: 'present'
   become: true
+  tags:
+    - logs_collection
 
 - name: 'Logs collection | Install FileBeat'
   include_role:
     name: 'beats'
+    apply:
+      tags:
+        - logs_collection
+  tags:
+    - logs_collection
 
 - name: 'Logs collection | Install Rsyslog -> FileBeat integration'
   include_role:
     name: 'filebeat-rsyslog-integration'
+    apply:
+      tags:
+        - logs_collection
+  tags:
+    - logs_collection

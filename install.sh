@@ -8,7 +8,7 @@ $0 -n "full" -c "client_name" -o "ddd-ddd-ddd-ddd" [additional_options]
 Required options:
     -n Node profile for deploying. Default: "basic"
        basic      - OS ans SSH hardening included only
-       hardening  - OS,SSH and advanced hardening included only  
+       hardening  - OS,SSH and advanced hardening included only
        secure     - basic profile + Wazuh agent + ClamAV agent
        monitoring - basic profile + logs shipping agent + monitoring metrics
                     requires -c switch

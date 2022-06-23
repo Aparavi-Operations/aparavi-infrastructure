@@ -1215,26 +1215,43 @@
 # cis: 5.4.5
 # cis_csc: 16.11
 # pci_dss: 12.3.8
+# - name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | bash.bashrc
+#   lineinfile:
+#     dest: /etc/bash.bashrc
+#     regexp: '^\s*\t*#*\s*\t*TMOUT\s*\t*='
+#     line: "readonly TMOUT=900 ; export TMOUT"
+#     create: true
+
+# - name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | profile
+#   lineinfile:
+#     dest: /etc/profile
+#     regexp: '^\s*\t*#*\s*\t*TMOUT\s*\t*='
+#     line: "readonly TMOUT=900 ; export TMOUT"
+#     create: true
+
+# - name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | profile.d
+#   lineinfile:
+#     dest: /etc/profile.d/wazuh_TMOUT.sh
+#     regexp: '^\s*\t*#*\s*\t*TMOUT\s*\t*='
+#     line: "readonly TMOUT=900 ; export TMOUT"
+#     create: true
+
 - name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | bash.bashrc
-  lineinfile:
-    dest: /etc/bash.bashrc
-    regexp: '^\s*\t*#*\s*\t*TMOUT\s*\t*='
-    line: "readonly TMOUT=900 ; export TMOUT"
+  blockinfile:
+    path: '{{ item }}'
     create: true
+    block: |
+      [[ -z "$TMOUT" ]]&& \
+      readonly TMOUT=900 ; export TMOUT
+  loop:
+    - /etc/bash.bashrc
+    - /etc/profile
+    - /etc/profile.d/wazuh_TMOUT.sh
 
-- name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | profile
-  lineinfile:
-    dest: /etc/profile
-    regexp: '^\s*\t*#*\s*\t*TMOUT\s*\t*='
-    line: "readonly TMOUT=900 ; export TMOUT"
-    create: true
-
-- name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | profile.d
-  lineinfile:
-    dest: /etc/profile.d/wazuh_TMOUT.sh
-    regexp: '^\s*\t*#*\s*\t*TMOUT\s*\t*='
-    line: "readonly TMOUT=900 ; export TMOUT"
-    create: true
+- name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | tmout.sh
+  file:
+    path: /etc/profile.d/tmout.sh
+    state: absent
 
 # Compliance
 # cis: 5.6

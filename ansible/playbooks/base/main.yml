@@ -8,6 +8,7 @@
     - os_hardening
     - ssh_hardening
     - hardening_advanced
+    - hardening_partitions
     - wazuh-agent
     - clamav-agent
     - prometheus-node-exporter

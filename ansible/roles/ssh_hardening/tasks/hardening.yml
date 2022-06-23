@@ -10,7 +10,8 @@
         - '{{ ansible_facts.os_family }}_{{ ansible_facts.distribution_major_version }}.yml'
         - '{{ ansible_facts.os_family }}.yml'
       skip: true
-  tags: always
+  tags: 
+    - always
 
 # we only override variables with our default, if they have not been specified already
 # by default the lookup functions finds all varnames containing the string, therefore
@@ -20,7 +21,8 @@
     '{{ item.key }}': '{{ item.value }}'
   when: "not lookup('varnames', '^' + item.key + '$')"
   with_dict: '{{ os_vars }}'
-  tags: always
+  tags: 
+    - always
 
 - name: Get openssh-version
   command: ssh -V

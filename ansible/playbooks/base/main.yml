@@ -7,12 +7,12 @@
   roles:
     - os_hardening
     - ssh_hardening
-    - mysql_server
-    - aparavi
     - wazuh-agent
     - clamav-agent
     - prometheus-node-exporter
     - logs-collection
+    - mysql_server
+    - aparavi_appagent
   vars:
     - logstash_address: 'logstash.aparavi.com'
     - node_meta_env: 'prod'
@@ -26,9 +26,13 @@
   tasks:
     - name: Flush handlers
       meta: flush_handlers
+      tags:
+        - mysql_server
     - name: Extra | Retrieving MySQL password
       debug:
         msg: 
           - "Make sure to copy your database root password now."
           - "MySQL root password: {{ mysql_root_password }}"
           - "Make sure you copied the password without the closing quotes"
+      tags:
+        - mysql_server

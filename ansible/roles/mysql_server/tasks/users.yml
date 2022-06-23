@@ -11,10 +11,6 @@
     password: "{{ mysql_root_password }}"
     check_implicit_admin: true
 
-- name: MySQL | Write mysql root password
-  copy:
-    content: "{{ mysql_root_password }}" 
-    dest: "{{ install_tmp_dir }}/mysql_root_password.txt"
 
 - name: MySQL | Create .my.cnf
   template:

@@ -8,7 +8,7 @@ $0 -n "full" -c "client_name" -o "ddd-ddd-ddd-ddd" [additional_options]
 Required options:
     -n Node profile for deploying. Default: "basic"
        basic      - OS ans SSH hardening included only
-       hardening  - OS,SSH and advanced hardening included only
+       hardening  - OS hardening + SSH hardening +advanced hardening + Wazuh agent
        secure     - basic profile + Wazuh agent + ClamAV agent
        monitoring - basic profile + logs shipping agent + monitoring metrics
                     requires -c switch
@@ -114,7 +114,7 @@ NODE_ANSIBLE_SKIP_TAGS=""
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
             ;;
         hardening)
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,hardening_advanced${HARDENING_PARTITIONS_TAG}"
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,hardening_advanced,wazuh_agent${HARDENING_PARTITIONS_TAG}"
             ;;
         secure)
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,clamav_agent,wazuh_agent${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"

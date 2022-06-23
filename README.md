@@ -10,7 +10,7 @@ Contains Ansible roles for configuring and deploying Aparavi app on baremetal ho
 Required options:
 * `-n` Node profile for deploying. Default: "basic"  
   * `basic`      - OS ans SSH hardening included only  
-  * `hardening`  - OS,SSH and advanced hardening included only  
+  * `hardening`  - OS hardening + SSH hardening +advanced hardening + Wazuh agent
   * `secure`     - basic profile + Wazuh agent + ClamAV agent  
   * `monitoring` - basic profile + logs shipping agent + monitoring metrics, requires `-c` switch
   * `appliance`  - basic profile + MySQL server + Aparavi AppAgent, requires `-o` switch

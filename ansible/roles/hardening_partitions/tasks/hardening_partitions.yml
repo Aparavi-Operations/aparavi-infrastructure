@@ -11,13 +11,13 @@
     state: directory
     mode: 0755
 
-- name: Create Filesystem file {{ item.key }} with size {{ item.value }}G
+- name: Create Filesystem files
   community.general.filesize:
     path: "/opt/{{ item.key }}"
     size: "{{ item.value }}"
   with_dict: "{{ fs_files }}"
 
-- name: Create a ext4 filesystem on "/opt/{{ item.key }}" and check disk blocks
+- name: Create a ext4 filesystems
   community.general.filesystem:
     fstype: ext4
     dev: "/opt/{{ item.key }}"

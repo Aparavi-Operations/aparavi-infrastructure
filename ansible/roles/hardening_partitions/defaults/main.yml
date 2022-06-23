@@ -33,4 +33,4 @@ fs_options:
   - "/var/tmp" : "nodev,noexec,nosuid"
   - "/home" : "nodev"
 
-hardening_partitions: yes
+hardening_partitions_enabled: true

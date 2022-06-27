@@ -132,8 +132,8 @@ NODE_ANSIBLE_SKIP_TAGS=""
             check_o_switch
             NODE_ANSIBLE_TAGS=""
             NODE_ANSIBLE_SKIP_TAGS="--skip-tags notag"
-            [[ "$HARDENING_ADVANCED_ADD" == "yes" ]]&&NODE_ANSIBLE_SKIP_TAGS="${NODE_ANSIBLE_SKIP_TAGS},hardening_advanced"
-            [[ "$HARDENING_PARTITIONS_ADD" == "yes" ]]&&NODE_ANSIBLE_SKIP_TAGS="${NODE_ANSIBLE_SKIP_TAGS},hardening_partitions"
+            [[ "$HARDENING_ADVANCED_ADD" == "yes" ]]||NODE_ANSIBLE_SKIP_TAGS="${NODE_ANSIBLE_SKIP_TAGS},hardening_advanced"
+            [[ "$HARDENING_PARTITIONS_ADD" == "yes" ]]||NODE_ANSIBLE_SKIP_TAGS="${NODE_ANSIBLE_SKIP_TAGS},hardening_partitions"
             ;;
         mysql_only)
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"

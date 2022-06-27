@@ -1,0 +1,37 @@
+---
+
+# Compliance
+# cis: 5.1.8
+# cis_csc: 14.6
+# nist_800_53: CM.1
+# pci_dss: 2.2.4
+# tsc: CC5.2
+- name: Wazuh | 2642 | Ensure at/cron is restricted to authorized users | cron.deny
+  file:
+    path: /etc/cron.deny
+    state: absent
+
+- name: Wazuh | 2642 | Ensure at/cron is restricted to authorized users | at.deny
+  file:
+    path: /etc/at.deny
+    state: absent
+
+- name: Wazuh | 2642 | Ensure at/cron is restricted to authorized users | cron.allow
+  file:
+    path: /etc/cron.allow
+    mode: "og-rwx"
+    state: touch
+    owner: root
+    group: root
+    modification_time: preserve
+    access_time: preserve
+
+- name: Wazuh | 2642 | Ensure at/cron is restricted to authorized users | at.allow
+  file:
+    path: /etc/at.allow
+    mode: "og-rwx"
+    state: touch
+    owner: root
+    group: root
+    modification_time: preserve
+    access_time: preserve

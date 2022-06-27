@@ -1,9 +1,26 @@
 ---
+# - include_tasks:
+#     file: hardening_advanced.yml
+#     apply:
+#       tags:
+#         - hardening_advanced
+#   when: hardening_advanced_enabled | bool
+#   tags:
+#     - hardening_advanced
+
 - include_tasks:
-    file: hardening_advanced.yml
+    file: "{{ item }}"
     apply:
       tags:
         - hardening_advanced
   when: hardening_advanced_enabled | bool
   tags:
     - hardening_advanced
+  loop:
+    - network.yml
+    - basic.yml
+    - aide.yml
+    - auditd.yml
+    - logs.yml
+    - cron.yml
+    - ssh_users.yml

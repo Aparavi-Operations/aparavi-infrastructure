@@ -1,0 +1,177 @@
+
+--- 
+
+######### SSH/Users
+
+### in the playbook vars:
+# # Wazuh | 2656 | Ensure only strong MAC algorithms are used
+# - ssh_macs: ["hmac-sha2-512-etm@openssh.com", "hmac-sha2-256-etm@openssh.com", "hmac-sha2-512", "hmac-sha2-256"]
+# # Wazuh | 2660 | Ensure SSH access is limited
+# - sh_deny_users: "root"
+# # Wazuh | 2661 | Ensure SSH warning banner is configured
+# - ssh_banner: "true"
+# - ssh_banner_path: "/etc/issue.net"
+
+# Compliance
+# cis: 5.3.1
+# cis_csc: 4.4
+# pci_dss: 8.2.3
+# tsc: CC6.1
+- name: Wazuh | 2666 | Ensure password creation requirements are configured | apt
+  apt:
+    name: libpam-pwquality
+    state: present
+
+- name: Wazuh | 2666 | Ensure password creation requirements are configured | common-password
+  lineinfile:
+    dest: /etc/pam.d/common-password
+    regexp: '^password\s*\t*requisite\s*\t*pam_pwquality.so\s*\t*retry\s*\t*=\s*\t*\d{1,999}\s*\t*'
+    line: "password	requisite			pam_pwquality.so retry=3"
+    create: yes
+
+- name: Wazuh | 2666 | Ensure password creation requirements are configured | pwquality.conf
+  lineinfile:
+    dest: /etc/security/pwquality.conf
+    regexp: '^\s*\t*#*\s*\t*{{ item.parameter }}.*'
+    line: "{{ item.parameter }} = {{ item.value }}"
+    create: yes
+  loop:
+    - { parameter: "minlen", value: "14" }
+    - { parameter: "dcredit", value: "-1" }
+    - { parameter: "ucredit", value: "-1" }
+    - { parameter: "ocredit", value: "-1" }
+    - { parameter: "lcredit", value: "-1" }
+
+# Compliance
+# cis: 5.3.2
+# cis_csc: 16.7
+# pci_dss: 8.2.5
+# tsc: CC6.1
+- name: Wazuh | 2667 | Ensure lockout for failed password attempts is configured | apt
+  apt:
+    name: libpam-modules
+    state: present
+
+### pam_tally2.so is deprecated in Debian 11
+# - name: Wazuh | 2667 | Ensure lockout for failed password attempts is configured | common-auth
+#   lineinfile:
+#     regexp: '^\s*\t*#*\s*\t*auth\s*\t*required\s*\t*pam_tally2.so\s*\t*onerr=fail\s*\t*audit\s*\t*silent\s*\t*deny=\d{1,999}\s*\t*unlock_time=\d{1,999}.*'
+#     dest: /etc/pam.d/common-auth
+#     line: "auth required pam_tally2.so onerr=fail audit silent deny=5 unlock_time=900"
+#     create: yes
+
+- name: Wazuh | 2667 | Ensure lockout for failed password attempts is configured | common-account
+  lineinfile:
+    dest: /etc/pam.d/common-account
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+    create: yes
+  loop:
+### pam_tally2.so is deprecated in Debian 11
+    - { regex: '^\s*\t*#*\s*\t*account\s*\t*requisite\s*\t*pam_deny.so', line: "account requisite pam_deny.so" }
+    # - { regex: '^\s*\t*#*\s*\t*account\s*\t*required\s*\t*pam_tally2.so', line: "account required pam_tally2.so" }
+
+# Compliance
+# cis: 5.3.4
+# cis_csc: 16.14
+# pci_dss: 3.6.1,8.2.1
+# tsc: CC6.1,CC6.7
+- name: Wazuh | 2669 | Ensure password hashing algorithm is SHA-512
+  lineinfile:
+    dest: /etc/pam.d/common-password
+    regexp: '^password.*[success=1 default=ignore].*pam_unix.so.*'
+    line: "password	[success=1 default=ignore]	pam_unix.so obscure use_authtok try_first_pass yescrypt sha512"
+
+# Compliance
+# cis: 5.4.1.4
+# cis_csc: 4.4,16
+# pci_dss: 8.2
+# tsc: CC6.1
+- name: Wazuh | 2673 | Ensure inactive password lock is 30 days or less
+  shell: "useradd -D -f 30"
+  args:
+    executable: /bin/bash
+
+# Compliance
+# cis: 5.4.5
+# cis_csc: 16.11
+# pci_dss: 12.3.8
+# - name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | bash.bashrc
+#   lineinfile:
+#     dest: /etc/bash.bashrc
+#     regexp: '^\s*\t*#*\s*\t*TMOUT\s*\t*='
+#     line: "readonly TMOUT=900 ; export TMOUT"
+#     create: true
+
+# - name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | profile
+#   lineinfile:
+#     dest: /etc/profile
+#     regexp: '^\s*\t*#*\s*\t*TMOUT\s*\t*='
+#     line: "readonly TMOUT=900 ; export TMOUT"
+#     create: true
+
+# - name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | profile.d
+#   lineinfile:
+#     dest: /etc/profile.d/wazuh_TMOUT.sh
+#     regexp: '^\s*\t*#*\s*\t*TMOUT\s*\t*='
+#     line: "readonly TMOUT=900 ; export TMOUT"
+#     create: true
+
+- name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | bash.bashrc
+  blockinfile:
+    path: '{{ item }}'
+    create: true
+    block: |
+      [[ -z "$TMOUT" ]]&& \
+      readonly TMOUT=900 ; export TMOUT
+  loop:
+    - /etc/bash.bashrc
+    - /etc/profile
+    - /etc/profile.d/wazuh_TMOUT.sh
+
+- name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | tmout.sh
+  file:
+    path: /etc/profile.d/tmout.sh
+    state: absent
+
+# Compliance
+# cis: 5.6
+# cis_csc: 5.1
+# gdpr_IV: 35.7,32.2
+# gpg_13: 7.8
+# hipaa: 164.312.b
+# nist_800_53: AU.14,AC.7
+# pci_dss: 10.2.5
+# tsc: CC7.2,CC6.1,CC6.8,CC7.3,CC7.4
+- name: Wazuh | 2677 | Ensure access to the su command is restricted
+  group:
+    name: sugroup
+    state: present
+
+- name: Wazuh | 2677 | Ensure access to the su command is restricted
+  lineinfile:
+    dest: /etc/pam.d/su
+    regexp: '^\s*\t*#^\s*\t*auth^\s*\t*required^\s*\t*pam_wheel\.so'
+    line: "auth required pam_wheel.so use_uid group=sugroup"
+
+# Compliance
+# cis: 6.1.6
+# cis_csc: 16.4
+# nist_800_53: CM.1
+# pci_dss: 2.2.4
+# tsc: CC5.2
+# Compliance
+# cis: 6.1.8
+# cis_csc: 16.4
+# nist_800_53: CM.1
+# pci_dss: 2.2.4
+# tsc: CC5.2
+- name: Wazuh | 2682 | Ensure permissions on /etc/passwd- are configured
+# - name: Wazuh | 2684 | Ensure permissions on /etc/group- are configured
+  file:
+    dest: '{{ item }}'
+    mode: "u-x,go-rwx"
+  loop:
+    - /etc/passwd-
+    - /etc/group-
+  notify: passwd- group- permissions

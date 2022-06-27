@@ -1,0 +1,107 @@
+--- 
+
+###- name: Wazuh | 2628 | Ensure rsyslog is configured to send logs to a remote log host
+#### all logs are sent to kibana
+
+# Compliance
+# cis: 4.2.1.6
+# cis_csc: 9.2
+# pci_dss: 10.5.1
+- name: Wazuh | 2629 | Ensure remote rsyslog messages are only accepted on designated log hosts
+  lineinfile:
+    dest: /etc/rsyslog.conf
+    regexp: '^.*\$ModLoad imtcp.*'
+    line: "# $ModLoad imtcp"
+    create: yes
+  notify: Wazuh | 2629 |  rsyslog restart
+
+- name: Wazuh | 2629 | Ensure remote rsyslog messages are only accepted on designated log hosts
+  lineinfile:
+    dest: /etc/rsyslog.conf
+    regexp: '^.*\$InputTCPServerRun 514.*'
+    line: "# $InputTCPServerRun 514"
+    create: yes
+  notify: Wazuh | 2629 |  rsyslog restart
+
+# Compliance
+# cis: 4.2.2.1
+# cis_csc: 6.5
+# nist_800_53: CM.1,AU.9,AU.4
+# pci_dss: 10.5.3
+# tsc: CC5.2,CC7.2
+- name: Wazuh | 2630 | Ensure journald is configured to send logs to rsyslog
+  lineinfile:
+    dest: /etc/systemd/journald.conf
+    regexp: '^.*ForwardToSyslog.*'
+    line: "ForwardToSyslog=yes"
+    create: yes
+
+# Compliance
+# cis: 4.2.2.2
+# cis_csc: 6.4
+# nist_800_53: CM.1,AU.4
+# pci_dss: 10.7
+# tsc: CC5.2
+- name: Wazuh | 2631 | Ensure journald is configured to compress large log files
+  lineinfile:
+    dest: /etc/systemd/journald.conf
+    regexp: '^.*Compress\s*\t*=.*'
+    line: "Compress=yes"
+    create: yes
+
+# Compliance
+# cis: 4.2.2.3
+# cis_csc: 6.2,6.3
+# nist_800_53: CM.1,AU.4
+# pci_dss: 10.7
+# tsc: CC5.2
+- name: Wazuh | 2632 | Ensure journald is configured to write logfiles to persistent disk
+  lineinfile:
+    dest: /etc/systemd/journald.conf
+    regexp: '^.*Storage\s*\t*=.*'
+    line: "Storage=persistent"
+    create: yes
+
+# Compliance
+# cis: 4.2.3
+# cis_csc: 5.1
+# nist_800_53: CM.1,AU.9
+# pci_dss: 10.5.1,10.5.2
+# tsc: CC5.2,CC7.2
+- name: Wazuh | 2633 | Ensure permissions on all logfiles are configured | find files
+  find:
+    paths: /var/log
+    recurse: yes
+    file_type: file
+  register: files_in_var_log
+
+- name: Wazuh | 2633 | Ensure permissions on all logfiles are configured | set files permissions
+  file:
+    dest:  '{{ item.path }}'
+    mode: "g-wx,o-rwx"
+  loop: '{{ files_in_var_log.files }}'
+  notify: log permissions
+
+- name: Wazuh | 2633 | Ensure permissions on all logfiles are configured | find dirs
+  find:
+    paths: /var/log
+    recurse: yes
+    file_type: directory
+  register: directories_in_var_log
+
+- name: Wazuh | 2633 | Ensure permissions on all logfiles are configured | set dirs permissions
+  file:
+    dest: '{{ item.path }}'
+    mode: "g-w,o-rwx"
+  loop: '{{ directories_in_var_log.files }}'
+  notify: log permissions
+
+# Compliance
+# cis: 4.4
+# cis_csc: 14.6
+- name: Wazuh | 2634 | Ensure logrotate assigns appropriate permissions
+  lineinfile:
+    dest: /etc/logrotate.conf
+    regexp: '^\s*\t*#*\s*\t*create.*'
+    line: "create 0640 root utmp"
+    create: yes

@@ -31,7 +31,7 @@
   apt:
     pkg: "wazuh-agent={{ wazuh_agent_full_version }}"
     state: present
-    allow_downgrade: yes
+    # allow_downgrade: yes
   environment:
     WAZUH_MANAGER: "{{ wazuh_manager_host }}"
     WAZUH_AGENT_NAME: "{{ node_meta_service_instance }}-{{ ansible_hostname }}"

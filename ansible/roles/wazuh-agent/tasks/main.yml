@@ -16,16 +16,28 @@
   tags:
     - wazuh_agent
 
-- name: Wazuh agent | Install wazuh agent
+- name: Wazuh agent | Install wazuh agent | latest
   apt:
-    pkg: "wazuh-agent={{ wazuh_agent_full_version }}"
+    pkg: "wazuh-agent"
     state: present
   environment:
     WAZUH_MANAGER: "{{ wazuh_manager_host }}"
-    # WAZUH_AGENT_NAME: "{{ client_name }}-{{ ansible_hostname }}"
+    WAZUH_AGENT_NAME: "{{ node_meta_service_instance }}-{{ ansible_hostname }}"
   tags:
     - wazuh_agent
+  when: wazuh_agent_full_version is not defined
 
+- name: Wazuh agent | Install wazuh agent | not latest
+  apt:
+    pkg: "wazuh-agent={{ wazuh_agent_full_version }}"
+    state: present
+    allow_downgrade: yes
+  environment:
+    WAZUH_MANAGER: "{{ wazuh_manager_host }}"
+    WAZUH_AGENT_NAME: "{{ node_meta_service_instance }}-{{ ansible_hostname }}"
+  tags:
+    - wazuh_agent
+  when: wazuh_agent_full_version is defined
 
 - name: Wazuh agent | Ensure Wazuh agent is started and enabled
   service:
@@ -36,7 +48,6 @@
   when: wazuh_agent_service_state != 'stopped'
   tags:
     - wazuh_agent
-
 
 - name: Wazuh agent | Ensure Wazuh agent is stopped and disabled (if wazuh_agent_service_state "started")
   service:

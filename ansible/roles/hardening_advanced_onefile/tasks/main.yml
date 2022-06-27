@@ -1,9 +1,0 @@
----
-- include_tasks:
-    file: hardening_advanced.yml
-    apply:
-      tags:
-        - hardening_advanced
-  when: hardening_advanced_enabled | bool
-  tags:
-    - hardening_advanced

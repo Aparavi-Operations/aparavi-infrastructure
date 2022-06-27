@@ -40,3 +40,23 @@ Shell script - the only file you need to run
 
 Ansible roles used to deploy projects:
 * [`ansible/roles/`](ansible/roles/)
+
+Additional variables:
+* `ssh_port` SSHD port. Default "22"
+* `` . Default ""
+* `` . Default ""
+* `` . Default ""
+* `ipv6_disable` Disable IPv6 or not. Default false
+* `wazuh_agent_full_version` Wazuh full version. Default "" (latest)
+* `mysql_version` Mysql server version. Default "0.8.22-1"
+* `disable_vfat` Disable vfat or not. Default true
+* `disable_forwarding` Disable ipv4 and ipv6 forwarding or not. Default true
+
+Partitions parameters:
+* `swap_size`    Swap size. Default "1g"
+* `var_size`     Size of `/var/` partition. Default "10g"
+* `vlog_size`    Size of `/var/log/` partition. Default:"5g"
+* `vlaudit_size` Size of `/var/log/audit/` partition. Default:"2g"
+* `home_size`    Size of `/home/` partition. Default:"5g"
+* `tmp_size`     Size of `/tmp/` partition. Default:"2g"
+* `vtmp_size`    Size of `/var/tmp/` partition. Default::"2g"

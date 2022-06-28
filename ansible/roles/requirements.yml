@@ -4,3 +4,7 @@ roles:
   - name: beats
     src: elastic.beats
     version: v7.17.0
+
+collections:
+  - name: community.general
+    version: 4.8.2

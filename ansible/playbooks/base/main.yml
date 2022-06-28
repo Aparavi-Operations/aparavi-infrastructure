@@ -7,12 +7,14 @@
   roles:
     - os_hardening
     - ssh_hardening
+    - hardening_advanced
     - wazuh-agent
     - clamav-agent
     - prometheus-node-exporter
     - logs-collection
     - mysql_server
     - aparavi_appagent
+    - hardening_partitions
   vars:
     - logstash_address: 'logstash.aparavi.com'
     - node_meta_env: 'prod'
@@ -23,6 +25,15 @@
     - ssh_client_password_login: true
     - ssh_server_password_login: true
     - sshd_authenticationmethods: "publickey password"
+    # - wazuh_agent_full_version: "4.3.4-1"
+    - disable_vfat: false
+    # Wazuh | 2656 | Ensure only strong MAC algorithms are used
+    - ssh_macs: ["hmac-sha2-512-etm@openssh.com", "hmac-sha2-256-etm@openssh.com", "hmac-sha2-512", "hmac-sha2-256"]
+    # Wazuh | 2660 | Ensure SSH access is limited
+    - ssh_deny_users: "root"
+    # Wazuh | 2661 | Ensure SSH warning banner is configured
+    - ssh_banner: "true"
+    - ssh_banner_path: "/etc/issue.net"
   tasks:
     - name: Flush handlers
       meta: flush_handlers
@@ -36,3 +47,10 @@
           - "Make sure you copied the password without the closing quotes"
       tags:
         - mysql_server
+    - name: Extra | Retrieving root password (if changed)
+      debug:
+        msg:
+          - "New root password: {{ root_password }}"
+          - "It's necessary to have a password for root user. Wazuh 2532."
+          - "Compliance: cis 1.5.3; cis_csc 5.1; nist_800_53 CM.1; pci_dss 2.2.4; tsc CC5.2"
+      when: root_password is defined

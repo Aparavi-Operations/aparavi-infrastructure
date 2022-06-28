@@ -1,0 +1,55 @@
+---
+
+# Compliance
+# cis: 1.4.1
+# cis_csc: 14.9
+# pci_dss: 11.5
+# tsc: PI1.4,PI1.5,CC6.8,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2528 | Ensure AIDE is installed | apt
+  apt:
+    pkg:
+    - aide
+    - aide-common
+
+- name: Wazuh | 2528 | Ensure AIDE is installed | DB stat
+  stat: path=/var/lib/aide/aide.db
+  register: aide_db_stat
+
+- name: Wazuh | 2528 | Ensure AIDE is installed | init
+  shell: aideinit
+  args:
+    executable: /bin/bash
+  when: aide_db_stat.stat.exists == False
+
+- name: Wazuh | 2528 | Ensure AIDE is installed | DB new stat
+  stat: path=/var/lib/aide/aide.db.new
+  register: aide_db_new_stat
+
+- name: Wazuh | 2528 | Ensure AIDE is installed | DB copy
+  copy:
+    src: /var/lib/aide/aide.db.new
+    dest: /var/lib/aide/aide.db
+  when: 
+    - aide_db_new_stat.stat.exists
+    - aide_db_stat.stat.exists == False
+
+- name: Wazuh | 2528 | Ensure AIDE is installed | DB new delete
+  file:
+    path: /var/lib/aide/aide.db.new
+    state: absent
+
+# Compliance
+# cis: 1.4.2
+# cis_csc: 14.9
+# pci_dss: 11.5
+# tsc: PI1.4,PI1.5,CC6.8,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2529 | Ensure filesystem integrity is regularly checked
+  cron:
+    name: AIDE filesystem check
+    user: root
+    minute: "0"
+    hour: "5"
+    day: "*"
+    month: "*"
+    weekday: "*"
+    job: "/usr/bin/aide --config /etc/aide/aide.conf --check"

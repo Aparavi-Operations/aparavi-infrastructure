@@ -6,15 +6,15 @@ usage () {
 $0 -n "full" -c "client_name" -o "ddd-ddd-ddd-ddd" [additional_options]
 
 Required options:
-    -n Node profile for deploying. Default: "basic"
-       basic      - OS ans SSH hardening included only
-       secure     - basic profile + Wazuh agent + ClamAV agent
-       monitoring - basic profile + logs shipping agent + monitoring metrics
-                    requires -c switch
-       appliance  - basic profile + MySQL server + Aparavi AppAgent
-                    requires -o switch
-       full       - all featured above
-                    reequires both -c and -o switches
+    -n Node profile for deploying. Default: "default"
+       basic                             - OS and SSH hardening included only
+       hardening_advanced                - OS hardening + SSH hardening + advanced hardening + Wazuh agent + ClamAV agent
+       hardening_advanced_and_partitions - OS hardening + SSH hardening + advanced hardening + Wazuh agent + ClamAV agent + partitions
+       monitoring                        - basic profile + logs shipping agent + monitoring metrics, requires "-c" switch
+       default                           - OS hardening + SSH hardening + Wazuh agent + ClamAV agent + MySQL server + Aparavi AppAgent + logs shipping agent + monitoring metrics
+       full_without_partitions           - all featured above without partitions, requires both "-c" and "-o" switches
+       full                              - all featured above, requires both "-c" and "-o" switches. The most secure version of the application installation. There may be server issues
+       mysql_only                        - basic profile + MySQL server
 
        ############ lazy dba profile ############
        mysql_only  - basic profile + MySQL server
@@ -92,16 +92,18 @@ if [[ -z "$APARAVI_PARENT_OBJECT_ID" ]]; then
 fi
 }
 ###### end of required switches checking ###### 
-
 ###### Node profile dictionary ######
-[[ -z "$NODE_PROFILE" ]]&&NODE_PROFILE="basic"
+[[ -z "$NODE_PROFILE" ]]&&NODE_PROFILE="default"
 
     case "${NODE_PROFILE}" in
         basic)
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening"
             ;;
-        secure)
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,clamav_agent,wazuh_agent"
+        hardening_advanced)
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,hardening_advanced,wazuh_agent,clamav_agent"
+            ;;
+        hardening_advanced_and_partitions)
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,hardening_advanced,wazuh_agent,clamav_agent,hardening_partitions"
             ;;
         monitoring)
             check_c_switch
@@ -110,6 +112,16 @@ fi
         appliance)
             check_o_switch
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent"
+            ;;
+        default)
+            check_c_switch
+            check_o_switch
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent,clamav_agent,wazuh_agent,logs_collection,prometheus_node_exporter"
+            ;;
+        full_without_partitions)
+            check_c_switch
+            check_o_switch
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent,clamav_agent,wazuh_agent,logs_collection,prometheus_node_exporter,hardening_advanced"
             ;;
         full)
             check_c_switch

@@ -43,9 +43,6 @@ Ansible roles used to deploy projects:
 
 Additional variables:
 * `ssh_port` SSHD port. Default "22"
-* `` . Default ""
-* `` . Default ""
-* `` . Default ""
 * `ipv6_disable` Disable IPv6 or not. Default false
 * `wazuh_agent_full_version` Wazuh full version. Default "" (latest)
 * `mysql_version` Mysql server version. Default "0.8.22-1"

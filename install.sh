@@ -26,8 +26,6 @@ Additional options:
     -a Aparavi platform bind address. Default "preview.aparavi.com"
     -l Logstash address. Default: "logstash.aparavi.com"
     -m Mysql AppUser name. Default: "aparavi_app"
-    -h Add advanced hardening or not (yes/no). Default: "no"
-    -p Remount partitions for hardening or not (yes/no). Default: "no"
 
 Nerds options:
     -d Install TMP dir. Default: "/tmp/debian11-install"
@@ -36,7 +34,7 @@ Nerds options:
 EOH
 }
 
-while getopts ":a:c:o:l:m:d:v:b:n:h:p:" options; do
+while getopts ":a:c:o:l:m:d:v:b:n:" options; do
     case "${options}" in
         c)
             NODE_META_SERVICE_INSTANCE=${OPTARG}

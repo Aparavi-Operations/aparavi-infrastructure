@@ -28,8 +28,6 @@ Additional options:
 * `-d` Install TMP dir. Default: "/tmp/debian11-install"
 * `-v` Verbose on or off. Default: "on"
 * `-b` Git branch to clone. Default: "main"
-* `-h` Add advanced hardening or not (yes/no). Default: "no"
-* `-p` Remount partitions for hardening or not (yes/no). Default: "no"
 
 ## Example
 `install.sh -n "full" -c "client_name" -o "parent_object_id`

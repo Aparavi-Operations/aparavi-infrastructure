@@ -63,12 +63,6 @@ while getopts ":a:c:o:l:m:d:v:b:n:" options; do
         n)
 	        NODE_PROFILE=${OPTARG}
 	        ;;
-        h)
-	        HARDENING_ADVANCED_ADD=${OPTARG}
-	        ;;
-        p)
-	        HARDENING_PARTITIONS_ADD=${OPTARG}
-	        ;;
         :)  # If expected argument omitted:
             echo "Error: -${OPTARG} requires an argument."
             usage

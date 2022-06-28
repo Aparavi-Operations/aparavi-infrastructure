@@ -117,7 +117,7 @@ NODE_ANSIBLE_SKIP_TAGS=""
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,hardening_advanced,wazuh_agent${HARDENING_PARTITIONS_TAG}"
             ;;
         secure)
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,clamav_agent,wazuh_agent${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,clamav_agent,clamav_agent${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
             ;;
         monitoring)
             check_c_switch
@@ -126,6 +126,11 @@ NODE_ANSIBLE_SKIP_TAGS=""
         appliance)
             check_o_switch
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
+            ;;
+        default)
+            check_c_switch
+            check_o_switch
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent,clamav_agent,clamav_agent,logs_collection,prometheus_node_exporter"
             ;;
         full)
             check_c_switch

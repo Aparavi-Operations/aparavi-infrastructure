@@ -90,9 +90,6 @@
     owner: root
     group: root
 
-######## TO DO ########
-### - name: Wazuh | 2531 | Ensure bootloader password is set
-
 # Compliance
 # cis: 1.5.3
 # cis_csc: 5.1
@@ -119,9 +116,6 @@
     password: "{{ root_password | password_hash('sha512') }}"
   when: 
     - root_password_check.rc == 0
-
-######## TO DO ########
-### - name: Wazuh | 2533 | Ensure XD/NX support is enabled
 
 # Compliance
 # cis: 1.6.4

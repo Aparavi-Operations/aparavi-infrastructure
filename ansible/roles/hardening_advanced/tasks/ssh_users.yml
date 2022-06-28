@@ -3,15 +3,6 @@
 
 ######### SSH/Users
 
-### in the playbook vars:
-# # Wazuh | 2656 | Ensure only strong MAC algorithms are used
-# - ssh_macs: ["hmac-sha2-512-etm@openssh.com", "hmac-sha2-256-etm@openssh.com", "hmac-sha2-512", "hmac-sha2-256"]
-# # Wazuh | 2660 | Ensure SSH access is limited
-# - sh_deny_users: "root"
-# # Wazuh | 2661 | Ensure SSH warning banner is configured
-# - ssh_banner: "true"
-# - ssh_banner_path: "/etc/issue.net"
-
 # Compliance
 # cis: 5.3.1
 # cis_csc: 4.4
@@ -52,14 +43,6 @@
     name: libpam-modules
     state: present
 
-### pam_tally2.so is deprecated in Debian 11
-# - name: Wazuh | 2667 | Ensure lockout for failed password attempts is configured | common-auth
-#   lineinfile:
-#     regexp: '^\s*\t*#*\s*\t*auth\s*\t*required\s*\t*pam_tally2.so\s*\t*onerr=fail\s*\t*audit\s*\t*silent\s*\t*deny=\d{1,999}\s*\t*unlock_time=\d{1,999}.*'
-#     dest: /etc/pam.d/common-auth
-#     line: "auth required pam_tally2.so onerr=fail audit silent deny=5 unlock_time=900"
-#     create: yes
-
 - name: Wazuh | 2667 | Ensure lockout for failed password attempts is configured | common-account
   lineinfile:
     dest: /etc/pam.d/common-account
@@ -69,7 +52,6 @@
   loop:
 ### pam_tally2.so is deprecated in Debian 11
     - { regex: '^\s*\t*#*\s*\t*account\s*\t*requisite\s*\t*pam_deny.so', line: "account requisite pam_deny.so" }
-    # - { regex: '^\s*\t*#*\s*\t*account\s*\t*required\s*\t*pam_tally2.so', line: "account required pam_tally2.so" }
 
 # Compliance
 # cis: 5.3.4
@@ -91,31 +73,6 @@
   shell: "useradd -D -f 30"
   args:
     executable: /bin/bash
-
-# Compliance
-# cis: 5.4.5
-# cis_csc: 16.11
-# pci_dss: 12.3.8
-# - name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | bash.bashrc
-#   lineinfile:
-#     dest: /etc/bash.bashrc
-#     regexp: '^\s*\t*#*\s*\t*TMOUT\s*\t*='
-#     line: "readonly TMOUT=900 ; export TMOUT"
-#     create: true
-
-# - name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | profile
-#   lineinfile:
-#     dest: /etc/profile
-#     regexp: '^\s*\t*#*\s*\t*TMOUT\s*\t*='
-#     line: "readonly TMOUT=900 ; export TMOUT"
-#     create: true
-
-# - name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | profile.d
-#   lineinfile:
-#     dest: /etc/profile.d/wazuh_TMOUT.sh
-#     regexp: '^\s*\t*#*\s*\t*TMOUT\s*\t*='
-#     line: "readonly TMOUT=900 ; export TMOUT"
-#     create: true
 
 - name: Wazuh | 2676 | Ensure default user shell timeout is 900 seconds or less | bash.bashrc
   blockinfile:
@@ -167,7 +124,6 @@
 # pci_dss: 2.2.4
 # tsc: CC5.2
 - name: Wazuh | 2682 | Ensure permissions on /etc/passwd- are configured
-# - name: Wazuh | 2684 | Ensure permissions on /etc/group- are configured
   file:
     dest: '{{ item }}'
     mode: "u-x,go-rwx"

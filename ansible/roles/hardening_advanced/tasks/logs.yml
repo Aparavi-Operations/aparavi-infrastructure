@@ -1,8 +1,5 @@
 --- 
 
-###- name: Wazuh | 2628 | Ensure rsyslog is configured to send logs to a remote log host
-#### all logs are sent to kibana
-
 # Compliance
 # cis: 4.2.1.6
 # cis_csc: 9.2

@@ -1,7 +1,5 @@
 ---
 
-################## network ##################
-
 # Compliance
 # cis: 3.1.1
 # cis_csc: 9.4
@@ -316,7 +314,6 @@
     - OUTPUT
   when: 
     - firewall_service == "iptables"
-    # - ipv6_disable|bool == false
   notify: iptables save
 
 # Compliance
@@ -333,7 +330,6 @@
     comment: Accept lo traffic.
   when: 
     - firewall_service == "iptables"
-    # - ipv6_disable|bool == false
   notify: iptables save
 
 - name: Wazuh | 2604 | Ensure IPv6 loopback traffic is configured
@@ -345,7 +341,6 @@
     comment: Accept lo traffic.
   when: 
     - firewall_service == "iptables"
-    # - ipv6_disable|bool == false
   notify: iptables save
 
 - name: Wazuh | 2604 | Ensure IPv6 loopback traffic is configured
@@ -357,5 +352,4 @@
     comment: Drop non-lo loopback traffic
   when: 
     - firewall_service == "iptables"
-    # - ipv6_disable|bool == false
   notify: iptables save

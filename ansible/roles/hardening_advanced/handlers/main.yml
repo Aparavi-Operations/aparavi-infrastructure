@@ -34,9 +34,6 @@
     - /etc/passwd-
     - /etc/group-
 
-# - name: log permissions
-#   shell: find /var/log -type f -exec chmod g-wx,o-rwx "{}" + -o -type d -exec chmod g-w,o-rwx "{}" +; chmod a+x /var/log
-
 - name: iptables save
   shell: |
     iptables-save > /etc/iptables/rules.v4

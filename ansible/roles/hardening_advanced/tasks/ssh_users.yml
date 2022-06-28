@@ -50,7 +50,6 @@
     line: "{{ item.line }}"
     create: yes
   loop:
-### pam_tally2.so is deprecated in Debian 11
     - { regex: '^\s*\t*#*\s*\t*account\s*\t*requisite\s*\t*pam_deny.so', line: "account requisite pam_deny.so" }
 
 # Compliance

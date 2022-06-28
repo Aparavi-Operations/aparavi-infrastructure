@@ -9,12 +9,14 @@ Contains Ansible roles for configuring and deploying Aparavi app on baremetal ho
 
 Required options:
 * `-n` Node profile for deploying. Default: "basic"  
-  * `basic`      - OS ans SSH hardening included only  
-  * `secure`     - basic profile + Wazuh agent + ClamAV agent  
-  * `monitoring` - basic profile + logs shipping agent + monitoring metrics, requires `-c` switch
-  * `appliance`  - basic profile + MySQL server + Aparavi AppAgent, requires `-o` switch
-  * `full`       - all featured above, requires both `-c` and `-o` switches
-  * `mysql_only` - basic profile + MySQL server
+  * `basic`                             - OS and SSH hardening included only
+  * `hardening_advanced`                - OS hardening + SSH hardening + advanced hardening + Wazuh agent + ClamAV agent
+  * `hardening_advanced_and_partitions` - OS hardening + SSH hardening + advanced hardening + Wazuh agent + ClamAV agent + partitions
+  * `monitoring`                        - basic profile + logs shipping agent + monitoring metrics, requires `-c` switch
+  * `default`                           - OS hardening + SSH hardening + Wazuh agent + ClamAV agent + MySQL server + Aparavi AppAgent + logs shipping agent + monitoring metrics
+  * `full_without_partitions`           - all featured above without partitions, requires both `-c` and `-o` switches
+  * `full`                              - all featured above, requires both `-c` and `-o` switches. The most secure version of the application installation. There may be server issues
+  * `mysql_only`                        - basic profile + MySQL server
 
 * `-c` Client name, assumed one deployment per client, in case of several deployments, just specify this like `new_client1_deployment1`, `new_client1_deployment2`, ..., `new_client1_deploymentN` per each deployment
 * `-o` Parent object id provided by Aparavi. Example: "ddd-ddd-ddd-ddd"
@@ -37,3 +39,24 @@ Shell script - the only file you need to run
 
 Ansible roles used to deploy projects:
 * [`ansible/roles/`](ansible/roles/)
+
+# Playbook configuration
+
+These options can be set in the file `ansible/playbooks/base/main.yml`
+
+Additional variables:
+* `ssh_port` SSHD port. Default "22"
+* `ipv6_disable` Disable IPv6 or not. Default false
+* `wazuh_agent_full_version` Wazuh full version. Default "" (latest)
+* `mysql_version` Mysql server version. Default "0.8.22-1"
+* `disable_vfat` Disable vfat or not. Default true
+* `disable_forwarding` Disable ipv4 and ipv6 forwarding or not. Default true
+
+Partitions parameters:
+* `swap_size`    Swap size. Default "1g"
+* `var_size`     Size of `/var/` partition. Default "10g"
+* `vlog_size`    Size of `/var/log/` partition. Default:"5g"
+* `vlaudit_size` Size of `/var/log/audit/` partition. Default:"2g"
+* `home_size`    Size of `/home/` partition. Default:"5g"
+* `tmp_size`     Size of `/tmp/` partition. Default:"2g"
+* `vtmp_size`    Size of `/var/tmp/` partition. Default::"2g"

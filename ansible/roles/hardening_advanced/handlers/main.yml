@@ -1,0 +1,40 @@
+---
+- name: Restart systemd-timesyncd
+  service:
+    name: "systemd-timesyncd"
+    state: restarted
+
+- name: Wazuh | 2576 | chmod grub.conf
+  file:
+    path: /boot/grub/grub.cfg
+    owner: root
+    group: root
+    mode: 0400
+
+- name: Wazuh | 2576 | update-grub
+  command: /usr/sbin/update-grub
+  notify: Wazuh | 2576 | chmod grub.conf
+
+- name: Wazuh | 2579 | ipv4 route flush
+  command: sysctl -w net.ipv4.route.flush=1
+
+- name: Wazuh | 2579 | ipv6 route flush
+  command: sysctl -w net.ipv6.route.flush=1
+
+- name: Wazuh | 2629 |  rsyslog restart
+  service:
+    name: rsyslog
+    state: restarted
+
+- name: passwd- group- permissions
+  file:
+    dest: '{{ item }}'
+    mode: "u-x,go-rwx"
+  loop:
+    - /etc/passwd-
+    - /etc/group-
+
+- name: iptables save
+  shell: |
+    iptables-save > /etc/iptables/rules.v4
+    ip6tables-save > /etc/iptables/rules.v6

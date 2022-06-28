@@ -1,0 +1,290 @@
+---
+
+# Compliance
+# cis: 4.1.1.1
+# cis_csc: 6.2,6.3
+# hipaa: 164.312.b
+# nist_800_53: AU.2
+# pci_dss: 10.1
+# tsc: CC6.1,CC6.2,CC6.3,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2605 | Ensure auditd is installed
+  apt:
+    name: ["auditd", "audispd-plugins"]
+    state: present
+  when: use_auditd
+
+# Compliance
+# cis: 4.1.1.3
+# cis_csc: 6.2,6.3
+# gdpr_IV: 35.7.d,32.2
+# gpg_13: 7.9
+# hipaa: 164.312.b
+# nist_800_53: AU.2
+# pci_dss: 10.2.6,10.7
+# tsc: CC6.1,CC6.8,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2607 | Ensure auditing for processes that start prior to auditd is enabled
+  lineinfile:
+    dest: /etc/default/grub
+    regexp: '^(GRUB_CMDLINE_LINUX=(?!.*audit=1)\"[^\"]*)(\".*)'
+    line: '\1 audit=1\2'
+    backrefs: yes
+  notify: Wazuh | 2576 | update-grub
+  when: use_auditd
+
+# Compliance
+# cis: 4.1.2.3
+# cis_csc: 6.4
+# pci_dss: 10.7
+- name: Wazuh | 2610 | Ensure system is disabled when audit logs are full
+  lineinfile:
+    dest: /etc/audit/auditd.conf
+    regexp: '^\s*\t*action_mail_acct\s*\t*'
+    line: "action_mail_acct = root"
+
+- name: Wazuh | 2610 | Ensure system is disabled when audit logs are full | halt
+  lineinfile:
+    dest: /etc/audit/auditd.conf
+    regexp: '^\s*\t*admin_space_left_action\s*\t*'
+    line: "admin_space_left_action = halt"
+  when: halt_on_full_audit_log
+
+- name: Wazuh | 2610 | Ensure system is disabled when audit logs are full | email
+  lineinfile:
+    dest: /etc/audit/auditd.conf
+    regexp: '^\s*\t*admin_space_left_action\s*\t*'
+    line: "admin_space_left_action = halt"
+  when: not halt_on_full_audit_log
+
+- name: Wazuh | 2610 | Ensure system is disabled when audit logs are full
+  lineinfile:
+    dest: /etc/audit/auditd.conf
+    regexp: '^\s*\t*space_left_action\s*\t*'
+    line: "space_left_action = email"
+
+# Compliance
+# cis: 4.1.3
+# cis_csc: 5.5
+# gdpr_IV: 32.2,35.7.d
+# gpg_13: 7.9
+# hipaa: 164.312.b
+# nist_800_53: AU.14,AU.6
+# pci_dss: 10.4.2,10.2.7
+# tsc: CC6.1,CC6.8,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2611 | Ensure events that modify date and time information are collected
+  template:
+    src: audit/wazuh_2611_date_time.rules.j2
+    dest: /etc/audit/rules.d/wazuh_2611_date_time.rules
+    mode: 0400
+    owner: root
+    group: root
+
+# Compliance
+# cis: 4.1.4
+# cis_csc: 4.8
+# gdpr_IV: 35.7,32.2
+# gpg_13: 7.8
+# hipaa: 164.312.b
+# nist_800_53: AU.14,AC.7
+# pci_dss: 10.2.5
+# tsc: CC6.1,CC6.8,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2612 | Ensure events that modify user/group information are collected
+  template:
+    src: audit/wazuh_2612_user_group.rules.j2
+    dest: /etc/audit/rules.d/wazuh_2612_user_group.rules
+    mode: 0400
+    owner: root
+    group: root
+
+# Compliance
+# cis: 4.1.5
+# cis_csc: 5.5
+# gdpr_IV: 35.7,32.2
+# gpg_13: 7.8
+# hipaa: 164.312.b
+# nist_800_53: AU.14,AC.7
+# pci_dss: 10.2.5
+# tsc: CC6.1,CC6.8,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2613 | Ensure events that modify the system's network environment are collected
+  template:
+    src: audit/wazuh_2613_network.rules.j2
+    dest: /etc/audit/rules.d/wazuh_2613_network.rules
+    mode: 0400
+    owner: root
+    group: root
+
+# Compliance
+# cis: 4.1.6
+# cis_csc: 5.5
+# gdpr_IV: 35.7,32.2
+# gpg_13: 7.8
+# hipaa: 164.312.b
+# nist_800_53: AU.14,AC.7
+# pci_dss: 10.2.5
+# tsc: CC6.1,CC6.8,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2614 | Ensure events that modify the system's Mandatory Access Controls are collected
+  template:
+    src: audit/wazuh_2614_MAC.rules.j2
+    dest: /etc/audit/rules.d/wazuh_2614_MAC.rules
+    mode: 0400
+    owner: root
+    group: root
+
+# Compliance
+# cis: 4.1.7
+# cis_csc: 4.9,16.11,16.13
+# gdpr_IV: 32.2,35.7.d
+# gpg_13: 7.8
+# hipaa: 164.312.b
+# nist_800_53: AC.7,AU.14
+# pci_dss: 10.2.1,10.2.4,10.3
+# tsc: CC6.1,CC6.8,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2615 | Ensure login and logout events are collected
+  template:
+    src: audit/wazuh_2615_login_logout.rules.j2
+    dest: /etc/audit/rules.d/wazuh_2615_login_logout.rules
+    mode: 0400
+    owner: root
+    group: root
+
+# Compliance
+# cis: 4.1.8
+# cis_csc: 4.9,16.11,16.13
+# hipaa: 164.312.b
+# nist_800_53: AC.7,AU.14
+# pci_dss: 10.3
+- name: Wazuh | 2616 | Ensure session initiation information is collected
+  template:
+    src: audit/wazuh_2616_initiation.rules.j2
+    dest: /etc/audit/rules.d/wazuh_2616_initiation.rules
+    mode: 0400
+    owner: root
+    group: root
+
+# Compliance
+# cis: 4.1.9
+# cis_csc: 5.5
+# gdpr_IV: 35.7,32.2
+# gpg_13: 7.8
+# hipaa: 164.312.b
+# nist_800_53: AU.14,AC.7
+# pci_dss: 10.2.5
+# tsc: CC6.1,CC6.8,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2617 | Ensure discretionary access control permission modification events are collected
+  template:
+    src: audit/wazuh_2617_discretionary_access_control.rules.j2
+    dest: /etc/audit/rules.d/wazuh_2617_discretionary_access_control.rules
+    mode: 0400
+    owner: root
+    group: root
+
+# Compliance
+# cis: 4.1.10
+# cis_csc: 14.9
+# gdpr_IV: 32.2,35.7.d
+# gpg_13: 7.8
+# hipaa: 164.312.b
+# nist_800_53: AC.7
+# pci_dss: 10.2.4
+# tsc: CC6.1,CC6.8,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2618 | Ensure unsuccessful unauthorized file access attempts are collected
+  template:
+    src: audit/wazuh_2618_unauthorized_file_access.rules.j2
+    dest: /etc/audit/rules.d/wazuh_2618_unauthorized_file_access.rules
+    mode: 0400
+    owner: root
+    group: root
+
+# Compliance
+# cis: 4.1.12
+# cis_csc: 13
+# gdpr_IV: 32.2,35.7.d
+# gpg_13: 7.9
+# hipaa: 164.312.b
+# nist_800_53: AU.14,AU.6
+# pci_dss: 10.2.7
+# tsc: CC6.1,CC6.8,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2619 | Ensure successful file system mounts are collected
+  template:
+    src: audit/wazuh_2619_successful_mounts.rules.j2
+    dest: /etc/audit/rules.d/wazuh_2619_successful_mounts.rules
+    mode: 0400
+    owner: root
+    group: root
+
+# Compliance
+# cis: 4.1.13
+# cis_csc: 6.2,13
+# hipaa: 164.312.b
+# nist_800_53: AU.14
+# pci_dss: 10.5.5
+# tsc: PI1.4,PI1.5,CC7.1,CC7.2,CC7.3,CC8.1
+- name: Wazuh | 2620 | Ensure file deletion events by users are collected
+  template:
+    src: audit/wazuh_2620_file_deletion.rules.j2
+    dest: /etc/audit/rules.d/wazuh_2620_file_deletion.rules
+    mode: 0400
+    owner: root
+    group: root
+
+# Compliance
+# cis: 4.1.14
+# cis_csc: 4.8
+# hipaa: 164.312.b
+# nist_800_53: AU.14
+# pci_dss: 10.5.5
+# tsc: PI1.4,PI1.5,CC7.1,CC7.2,CC7.3,CC8.1
+- name: Wazuh | 2621 | Ensure changes to system administration scope (sudoers) is collected
+  template:
+    src: audit/wazuh_2621_sudoers_scope.rules.j2
+    dest: /etc/audit/rules.d/wazuh_2621_sudoers_scope.rules
+    mode: 0400
+    owner: root
+    group: root
+
+# Compliance
+# cis: 4.1.15
+# cis_csc: 4.9
+# gdpr_IV: 32.2,35.7.d
+# gpg_13: 7.8
+# hipaa: 164.312.b
+# nist_800_53: AU.14,AC.6,AC.7
+# pci_dss: 10.2.2
+# tsc: CC6.1,CC6.8,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2622 | Ensure system administrator actions (sudolog) are collected
+  template:
+    src: audit/wazuh_2622_sudoers_actions.rules.j2
+    dest: /etc/audit/rules.d/wazuh_2622_sudoers_actions.rules
+    mode: 0400
+    owner: root
+    group: root
+
+# Compliance
+# cis: 4.1.16
+# cis_csc: 5.1
+# gdpr_IV: 32.2,35.7.d
+# gpg_13: 7.9
+# hipaa: 164.312.b
+# nist_800_53: AU.14,AU.6
+# pci_dss: 10.2.7
+# tsc: CC6.1,CC6.8,CC7.2,CC7.3,CC7.4
+- name: Wazuh | 2623 | Ensure kernel module loading and unloading is collected
+  template:
+    src: audit/wazuh_2623_kernel.rules.j2
+    dest: /etc/audit/rules.d/wazuh_2623_kernel.rules
+    mode: 0400
+    owner: root
+    group: root
+
+# Compliance
+# cis: 4.1.17
+# cis_csc: 6.2,6.3
+# hipaa: 164.312.b
+# nist_800_53: AU.9
+# pci_dss: 10.5
+- name: Wazuh | 2624 | Ensure the audit configuration is immutable
+  template:
+    src: audit/99-finalize.rules.j2
+    dest: /etc/audit/rules.d/99-finalize.rules
+    mode: 0400
+    owner: root
+    group: root

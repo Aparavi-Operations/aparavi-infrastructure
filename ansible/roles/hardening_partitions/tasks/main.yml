@@ -1,0 +1,9 @@
+---
+- include_tasks:
+    file: hardening_partitions.yml
+    apply:
+      tags:
+        - hardening_partitions
+  when: hardening_partitions_enabled | bool
+  tags:
+    - hardening_partitions

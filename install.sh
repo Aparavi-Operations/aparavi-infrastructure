@@ -6,16 +6,15 @@ usage () {
 $0 -n "full" -c "client_name" -o "ddd-ddd-ddd-ddd" [additional_options]
 
 Required options:
-    -n Node profile for deploying. Default: "basic"
-       basic      - OS ans SSH hardening included only
-       hardening  - OS hardening + SSH hardening +advanced hardening + Wazuh agent
-       secure     - basic profile + Wazuh agent + ClamAV agent
-       monitoring - basic profile + logs shipping agent + monitoring metrics
-                    requires -c switch
-       appliance  - basic profile + MySQL server + Aparavi AppAgent
-                    requires -o switch
-       full       - all featured above
-                    reequires both -c and -o switches
+    -n Node profile for deploying. Default: "default"
+       basic                             - OS and SSH hardening included only
+       hardening_advanced                - OS hardening + SSH hardening + advanced hardening + Wazuh agent + ClamAV agent
+       hardening_advanced_and_partitions - OS hardening + SSH hardening + advanced hardening + Wazuh agent + ClamAV agent + partitions
+       monitoring                        - basic profile + logs shipping agent + monitoring metrics, requires "-c" switch
+       default                           - OS hardening + SSH hardening + Wazuh agent + ClamAV agent + MySQL server + Aparavi AppAgent + logs shipping agent + monitoring metrics
+       full_without_partitions           - all featured above without partitions, requires both "-c" and "-o" switches
+       full                              - all featured above, requires both "-c" and "-o" switches. The most secure version of the application installation. There may be server issues
+       mysql_only                        - basic profile + MySQL server
 
        ############ lazy dba profile ############
        mysql_only  - basic profile + MySQL server
@@ -101,47 +100,44 @@ if [[ -z "$APARAVI_PARENT_OBJECT_ID" ]]; then
 fi
 }
 ###### end of required switches checking ###### 
-NODE_ANSIBLE_SKIP_TAGS=""
-[[ -z "$HARDENING_ADVANCED_ADD" ]]&&HARDENING_ADVANCED_ADD="no"
-[[ "$HARDENING_ADVANCED_ADD" == "yes" ]]&&HARDENING_ADVANCED_TAG=",hardening_advanced"||$HARDENING_ADVANCED_TAG=""
-[[ -z "$HARDENING_PARTITIONS_ADD" ]]&&HARDENING_PARTITIONS_ADD="no"
-[[ "$HARDENING_PARTITIONS_ADD" == "yes" ]]&&HARDENING_PARTITIONS_TAG=",hardening_partitions"||$HARDENING_PARTITIONS_TAG=""
 ###### Node profile dictionary ######
-[[ -z "$NODE_PROFILE" ]]&&NODE_PROFILE="basic"
+[[ -z "$NODE_PROFILE" ]]&&NODE_PROFILE="default"
 
     case "${NODE_PROFILE}" in
         basic)
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening"
             ;;
-        hardening)
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,hardening_advanced,wazuh_agent${HARDENING_PARTITIONS_TAG}"
+        hardening_advanced)
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,hardening_advanced,wazuh_agent,clamav_agent"
             ;;
-        secure)
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,clamav_agent,clamav_agent${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
+        hardening_advanced_and_partitions)
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,hardening_advanced,wazuh_agent,clamav_agent,hardening_partitions"
             ;;
         monitoring)
             check_c_switch
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,logs_collection,prometheus_node_exporter${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,logs_collection,prometheus_node_exporter"
             ;;
         appliance)
             check_o_switch
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent"
             ;;
         default)
             check_c_switch
             check_o_switch
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent,clamav_agent,clamav_agent,logs_collection,prometheus_node_exporter"
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent,clamav_agent,wazuh_agent,logs_collection,prometheus_node_exporter"
+            ;;
+        full_without_partitions)
+            check_c_switch
+            check_o_switch
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent,clamav_agent,wazuh_agent,logs_collection,prometheus_node_exporter,hardening_advanced"
             ;;
         full)
             check_c_switch
             check_o_switch
             NODE_ANSIBLE_TAGS=""
-            NODE_ANSIBLE_SKIP_TAGS="--skip-tags notag"
-            [[ "$HARDENING_ADVANCED_ADD" == "yes" ]]||NODE_ANSIBLE_SKIP_TAGS="${NODE_ANSIBLE_SKIP_TAGS},hardening_advanced"
-            [[ "$HARDENING_PARTITIONS_ADD" == "yes" ]]||NODE_ANSIBLE_SKIP_TAGS="${NODE_ANSIBLE_SKIP_TAGS},hardening_partitions"
             ;;
         mysql_only)
-            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server${HARDENING_ADVANCED_TAG}${HARDENING_PARTITIONS_TAG}"
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server"
             ;;
         *)
 	    echo "Error: please provide node profile (\"-n\" switch) from the list: basic, secure, monitoring, appliance, full, mysql_only"
@@ -188,7 +184,7 @@ export ANSIBLE_ROLES_PATH="$INSTALL_TMP_DIR/aparavi-infrastructure/ansible/roles
 ansible-galaxy install -r roles/requirements.yml
 
 ###### run ansible ######
-ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansible/playbooks/base/main.yml -i 127.0.0.1, $VERBOSE $NODE_ANSIBLE_TAGS $NODE_ANSIBLE_SKIP_TAGS \
+ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansible/playbooks/base/main.yml -i 127.0.0.1, $VERBOSE $NODE_ANSIBLE_TAGS \
     --extra-vars    "mysql_appuser_name=$MYSQL_APPUSER_NAME \
                     aparavi_platform_bind_addr=$APARAVI_PLATFORM_BIND_ADDR \
                     node_meta_service_instance=$NODE_META_SERVICE_INSTANCE \

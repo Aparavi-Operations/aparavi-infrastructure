@@ -63,41 +63,6 @@
     create: yes
 
 # Compliance
-# cis: 4.2.3
-# cis_csc: 5.1
-# nist_800_53: CM.1,AU.9
-# pci_dss: 10.5.1,10.5.2
-# tsc: CC5.2,CC7.2
-### it doesn't work with mysql server. It's necessary to set g+x for /var/log
-# - name: Wazuh | 2633 | Ensure permissions on all logfiles are configured | find files
-#   find:
-#     paths: /var/log
-#     recurse: yes
-#     file_type: file
-#   register: files_in_var_log
-
-# - name: Wazuh | 2633 | Ensure permissions on all logfiles are configured | set files permissions
-#   file:
-#     dest:  '{{ item.path }}'
-#     mode: "g-wx,o-rwx"
-#   loop: '{{ files_in_var_log.files }}'
-#   notify: log permissions
-
-# - name: Wazuh | 2633 | Ensure permissions on all logfiles are configured | find dirs
-#   find:
-#     paths: /var/log
-#     recurse: yes
-#     file_type: directory
-#   register: directories_in_var_log
-
-# - name: Wazuh | 2633 | Ensure permissions on all logfiles are configured | set dirs permissions
-#   file:
-#     dest: '{{ item.path }}'
-#     mode: "g-w,o-rwx"
-#   loop: '{{ directories_in_var_log.files }}'
-#   notify: log permissions
-
-# Compliance
 # cis: 4.4
 # cis_csc: 14.6
 - name: Wazuh | 2634 | Ensure logrotate assigns appropriate permissions

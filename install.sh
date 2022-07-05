@@ -31,10 +31,11 @@ Nerds options:
     -d Install TMP dir. Default: "/tmp/debian11-install"
     -v Verbose on or off. Default: "on"
     -b Git branch to clone. Default: "main"
+    -u Aparavi app download url. Default: "https://aparavi.jfrog.io/artifactory/aparavi-installers-public/linux-installer-latest.run"
 EOH
 }
 
-while getopts ":a:c:o:l:m:d:v:b:n:" options; do
+while getopts ":a:c:o:l:m:d:v:b:n:u:" options; do
     case "${options}" in
         c)
             NODE_META_SERVICE_INSTANCE=${OPTARG}
@@ -61,8 +62,11 @@ while getopts ":a:c:o:l:m:d:v:b:n:" options; do
             GIT_BRANCH=${OPTARG}
             ;;
         n)
-	        NODE_PROFILE=${OPTARG}
-	        ;;
+            NODE_PROFILE=${OPTARG}
+            ;;
+        u)  
+            DOWNLOAD_URL=${OPTARG}
+            ;;
         :)  # If expected argument omitted:
             echo "Error: -${OPTARG} requires an argument."
             usage
@@ -132,7 +136,7 @@ fi
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server"
             ;;
         *)
-	    echo "Error: please provide node profile (\"-n\" switch) from the list: basic, secure, monitoring, appliance, full, mysql_only"
+        echo "Error: please provide node profile (\"-n\" switch) from the list: basic, secure, monitoring, appliance, full, mysql_only"
             usage
             exit 1
             ;;
@@ -182,4 +186,5 @@ ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansi
                     node_meta_service_instance=$NODE_META_SERVICE_INSTANCE \
                     aparavi_parent_object=$APARAVI_PARENT_OBJECT_ID \
                     logstash_address=$LOGSTASH_ADDRESS \
-                    install_tmp_dir=$INSTALL_TMP_DIR"
+                    install_tmp_dir=$INSTALL_TMP_DIR \
+                    aparavi_app_url=$DOWNLOAD_URL"

@@ -1,6 +1,6 @@
 - name: Aparavi AppAgent | Download installer
   get_url:
-    url: https://aparavi.jfrog.io/artifactory/aparavi-installers-public/linux-installer-latest.run
+    url: "{{ aparavi_app_url }}"
     dest: /tmp/linux-installer-latest.run
     mode: '0775'
   tags:

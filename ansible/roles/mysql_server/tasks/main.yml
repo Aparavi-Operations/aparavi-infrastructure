@@ -42,6 +42,15 @@
     - databases
     - mysql_server
 
+- name: MySQL | Platform Database
+  include_tasks: 
+    file: platform_database.yml
+    apply:
+      tags:
+        - mysql_server
+  tags:
+    - platform
+
 - name: MySQL | Service
   include_tasks: 
     file: service.yml

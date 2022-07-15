@@ -15,6 +15,7 @@ Required options:
        full_without_partitions           - all featured above without partitions, requires both "-c" and "-o" switches
        full                              - all featured above, requires both "-c" and "-o" switches. The most secure version of the application installation. There may be server issues
        mysql_only                        - basic profile + MySQL server
+       mysql_for_platform                - MySQL only + platform db support
 
        ############ lazy dba profile ############
        mysql_only  - basic profile + MySQL server
@@ -31,10 +32,11 @@ Nerds options:
     -d Install TMP dir. Default: "/tmp/debian11-install"
     -v Verbose on or off. Default: "on"
     -b Git branch to clone. Default: "main"
+    -p Set MySQL User Password
 EOH
 }
 
-while getopts ":a:c:o:l:m:d:v:b:n:" options; do
+while getopts ":a:c:o:l:m:d:v:b:n::p:" options; do
     case "${options}" in
         c)
             NODE_META_SERVICE_INSTANCE=${OPTARG}
@@ -61,8 +63,17 @@ while getopts ":a:c:o:l:m:d:v:b:n:" options; do
             GIT_BRANCH=${OPTARG}
             ;;
         n)
-	        NODE_PROFILE=${OPTARG}
-	        ;;
+            NODE_PROFILE=${OPTARG}
+            ;;
+        p)  
+            if [[-z ${OPTARG} ]]; then 
+                "Error: You must set a password after '-p' option"
+                usage
+                exit 1
+            else 
+                MYSQL_APPUSER_PASSWORD=${OPTARG}
+            fi
+            ;;
         :)  # If expected argument omitted:
             echo "Error: -${OPTARG} requires an argument."
             usage
@@ -131,6 +142,9 @@ fi
         mysql_only)
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server"
             ;;
+        mysql_for_platform)
+            NODE_ANSIBLE_TAGS="-t mysql_server"
+            ;;
         *)
 	    echo "Error: please provide node profile (\"-n\" switch) from the list: basic, secure, monitoring, appliance, full, mysql_only"
             usage
@@ -152,6 +166,7 @@ fi
 [[ -z "$LOGSTASH_ADDRESS" ]]&&LOGSTASH_ADDRESS="logstash.aparavi.com"
 
 [[ -z "$MYSQL_APPUSER_NAME" ]]&&MYSQL_APPUSER_NAME="aparavi_app"
+[[ -z "$MYSQL_APPUSER_PASSWORD" ]]&&MYSQL_APPUSER_PASSWORD="blankpassword"
 [[ -z "$INSTALL_TMP_DIR" ]]&&INSTALL_TMP_DIR="/tmp/debian11-install"
 [[ -z "$GIT_BRANCH" ]]&&GIT_BRANCH="main"
 
@@ -182,4 +197,5 @@ ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansi
                     node_meta_service_instance=$NODE_META_SERVICE_INSTANCE \
                     aparavi_parent_object=$APARAVI_PARENT_OBJECT_ID \
                     logstash_address=$LOGSTASH_ADDRESS \
-                    install_tmp_dir=$INSTALL_TMP_DIR"
+                    install_tmp_dir=$INSTALL_TMP_DIR \
+                    mysql_appuser_password=$MYSQL_APPUSER_PASSWORD"

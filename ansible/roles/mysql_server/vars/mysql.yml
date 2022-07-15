@@ -1,7 +1,7 @@
 ---
 
 mysql_root_password_gen: "{{ lookup('password', '/dev/null length=22 chars=ascii_letters,digits') }}"
-mysql_appuser_password_gen: "{{ lookup('password', '/dev/null length=22 chars=ascii_letters,digits') }}"
+mysql_appuser_password_gen: "{{ lookup('password', '/dev/null length=22 chars=ascii_letters,digits') if mysql_appuser_password == 'blankpassword' else mysql_appuser_password }}"
 
 mysql_deb_package: "mysql-apt-config_{{ mysql_version }}_all.deb"
 mysql_deb_repo: "https://dev.mysql.com/get/{{ mysql_deb_package }}"
@@ -14,6 +14,9 @@ mysql_databases:
   - name: "{{ mysql_db_name }}"
     collation: utf8mb4_unicode_ci
     encoding: utf8mb4
+  - name: "platform_{{ ansible_hostname | replace('-','_') }}"
+    collation: utf8mb4_unicode_ci
+    encoding: utf8mb4
 
 mysql_users:
   - name: "{{mysql_appuser_name}}"
@@ -21,3 +24,4 @@ mysql_users:
     password: "{{ mysql_appuser_password }}"
     priv:
       - '{{ mysql_db_name }}.*:ALL'
+      - "platform_{{ ansible_hostname | replace('-','_') }}.*:ALL"

@@ -66,8 +66,8 @@ while getopts ":a:c:o:l:m:d:v:b:n::p:" options; do
             NODE_PROFILE=${OPTARG}
             ;;
         p)  
-            if [[-z ${OPTARG} ]]; then 
-                "Error: You must set a password after '-p' option"
+            if [[ ${OPTARG} -ge 12 ]]; then 
+                "Error: Your password must be 12 characters or greater"
                 usage
                 exit 1
             else 

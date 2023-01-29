@@ -83,8 +83,8 @@ function check_mysql_password {
     [string]$mysqlpassword,
     [string]$mysqluser = "root"
   )
-  if(!(Test-Path("$env:ProgramFiles\MySQL\bin\mysql.exe"))) { return $false }
-  $rc = Start-Process -RedirectStandardOutput "NUL" -NoNewWindow -PassThru -Wait -FilePath "$env:ProgramFiles\MySQL\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlpassword}", "-e", "`"SELECT 1;`""
+  if(!(Test-Path("$env:ProgramFiles\MySQL\Server\bin\mysql.exe"))) { return $false }
+  $rc = Start-Process -RedirectStandardOutput "NUL" -NoNewWindow -PassThru -Wait -FilePath "$env:ProgramFiles\MySQL\Server\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlpassword}", "-e", "`"SELECT 1;`""
   if ($rc.ExitCode -eq 0) { return $true } else { return $false }
 }
 
@@ -106,29 +106,29 @@ function install_mysql_archive {
       sort length -Descending |
       Remove-Item -force
   } else {
+    New-Item "$env:ProgramFiles\MySQL" -Force -ItemType Directory > $null
     $mysqlinitialized = $false
   }
   Write-Host "Unzipping and copying MySQL executables..."
-  unzip "mysql.zip" "$env:ProgramFiles"
-  Rename-Item -Path "$env:ProgramFiles\mysql-${version}-winx64" -NewName "$env:ProgramFiles\MySQL"
-  #Remove-Item -Force -Recurse "$env:ProgramFiles\mysql-${version}-winx64"
-  #Remove-Item -Force "mysql.zip"
+  unzip "mysql.zip" "$env:ProgramFiles\MySQL"
+  Rename-Item -Path "$env:ProgramFiles\MySQL\mysql-${version}-winx64" -NewName "$env:ProgramFiles\MySQL\Server"
   Write-Host "Generating my.ini..."
   @"
 [mysqld]
-basedir="$env:ProgramFiles\MySQL"
+basedir="$env:ProgramFiles\MySQL\Server"
 datadir="$env:ProgramFiles\MySQL\data"
 port=3306
 "@ | Out-File "$env:ProgramFiles\MySQL\my.ini" -Force -Encoding ASCII
   if (-Not $mysqlinitialized) {
     Write-Host "Initializing MySQL database..."
-    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\bin\mysqld.exe" -ArgumentList "--defaults-file=`"$env:ProgramFiles\MySQL\my.ini`"", "--initialize-insecure"
+    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\Server\bin\mysqld.exe" -ArgumentList "--defaults-file=`"$env:ProgramFiles\MySQL\my.ini`"", "--initialize-insecure"
     Write-Host "Installing the MySQL service..."
-    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\bin\mysqld.exe" -ArgumentList "--install", "MySQL", "--defaults-file=`"$env:ProgramFiles\MySQL\my.ini`""
+    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\Server\bin\mysqld.exe" -ArgumentList "--remove"
+    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\Server\bin\mysqld.exe" -ArgumentList "--install", "MySQL", "--defaults-file=`"$env:ProgramFiles\MySQL\my.ini`""
     Write-Host "Starting MySQL service..."
     Start-Service -Name "MySQL"
     Write-Host "Setting MySQL root password..."
-    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\bin\mysql.exe" -ArgumentList "-u", "root", "-e", "`"ALTER USER 'root'@'localhost' IDENTIFIED BY '${mysqlpassword}';`""
+    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\Server\bin\mysql.exe" -ArgumentList "-u", "root", "-e", "`"ALTER USER 'root'@'localhost' IDENTIFIED BY '${mysqlpassword}';`""
   } else {
     Write-Host "Starting MySQL service..."
     Start-Service -Name "MySQL"
@@ -147,13 +147,13 @@ function configure_mysql {
   )
   Write-Host "Doing MySQL schema configuration..."
   if (check_mysql_password -mysqlpassword $mysqlrootpassword) {
-    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"CREATE USER IF NOT EXISTS '${mysqlappuser}'@'%';`""
-    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"ALTER USER IF EXISTS '${mysqlappuser}'@'%' IDENTIFIED BY '${mysqlapppassword}';`""
-    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"GRANT ALL PRIVILEGES ON ``${type}\_%``.* TO '${mysqlappuser}'@'%';`""
-    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"CREATE USER IF NOT EXISTS '${mysqlmonitoringuser}'@'%';`""
-    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"ALTER USER IF EXISTS '${mysqlmonitoringuser}'@'%' IDENTIFIED BY '${mysqlmonitoringpassword}' WITH MAX_USER_CONNECTIONS 10;`""
-    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD, BACKUP_ADMIN ON *.* TO 'monitoring'@'%';`""
-    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"FLUSH PRIVILEGES;`""
+    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\Server\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"CREATE USER IF NOT EXISTS '${mysqlappuser}'@'%';`""
+    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\Server\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"ALTER USER IF EXISTS '${mysqlappuser}'@'%' IDENTIFIED BY '${mysqlapppassword}';`""
+    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\Server\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"GRANT ALL PRIVILEGES ON ``${type}\_%``.* TO '${mysqlappuser}'@'%';`""
+    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\Server\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"CREATE USER IF NOT EXISTS '${mysqlmonitoringuser}'@'%';`""
+    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\Server\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"ALTER USER IF EXISTS '${mysqlmonitoringuser}'@'%' IDENTIFIED BY '${mysqlmonitoringpassword}' WITH MAX_USER_CONNECTIONS 10;`""
+    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\Server\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD, BACKUP_ADMIN ON *.* TO 'monitoring'@'%';`""
+    Start-Process -NoNewWindow -Wait -FilePath "$env:ProgramFiles\MySQL\Server\bin\mysql.exe" -ArgumentList "-u", "root", "-p${mysqlrootpassword}", "-e", "`"FLUSH PRIVILEGES;`""
   } else {
     Write-Error "Failed to run commands against MySQL!" -ErrorAction Stop
   }
@@ -233,10 +233,6 @@ function configure_app {
   $config.database.port = 3306
 
   $config | ConvertTo-Json -Depth 20 | Out-File -encoding ASCII $configfile
-  #$template = (Get-Content "aparavi-infrastructure\windows\config.json.tpl") | out-string
-  #$template = (Get-Content "config.json.tpl") | % {$_.replace('"','""')} | out-string
-  #$data = Invoke-Expression "`"$template`""
-  #$data | Out-File "${env:ProgramData}\aparavi-data-ia\${apptypename}\config\config.json"
 }
 
 function start_app {

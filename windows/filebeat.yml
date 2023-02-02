@@ -1,0 +1,198 @@
+################### filebeat Configuration #########################
+
+############################# filebeat ######################################
+filebeat:
+  inputs:
+  - close.on_state_change.inactive: 2m
+    enabled: true
+    harvester_limit: 32
+    id: filestream-collector
+    ignore_older: 24h
+    parsers:
+    - multiline:
+        match: after
+        negate: true
+        pattern: ^\d{1,2}\/\d{1,2}\/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+        type: pattern
+    paths:
+    - C:\ProgramData\aparavi*\collector\logs\*
+    - C:\Program Files\aparavi*\collector\monitor.log*
+    processors:
+    - add_fields:
+        fields:
+          service.component: collector
+          service.name: aparavi
+          service.subcomponent: app
+        target: ''
+    prospector.scanner.check_interval: 15s
+    type: filestream
+  - close.on_state_change.inactive: 2m
+    enabled: true
+    harvester_limit: 32
+    id: filestream-aggregator
+    ignore_older: 24h
+    parsers:
+    - multiline:
+        match: after
+        negate: true
+        pattern: ^\d{1,2}\/\d{1,2}\/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+        type: pattern
+    paths:
+    - C:\ProgramData\aparavi*\aggregator\logs\*
+    - C:\Program Files\aparavi*\aggregator\monitor.log*
+    processors:
+    - add_fields:
+        fields:
+          service.component: aggregator
+          service.name: aparavi
+          service.subcomponent: app
+        target: ''
+    prospector.scanner.check_interval: 15s
+    type: filestream
+  - close.on_state_change.inactive: 2m
+    enabled: true
+    harvester_limit: 32
+    id: filestream-appagent
+    ignore_older: 24h
+    parsers:
+    - multiline:
+        match: after
+        negate: true
+        pattern: ^\d{1,2}\/\d{1,2}\/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+        type: pattern
+    paths:
+    - C:\ProgramData\aparavi*\aggregator-collector\logs\*
+    - C:\Program Files\aparavi*\aggregator-collector\monitor.log*
+    processors:
+    - add_fields:
+        fields:
+          service.component: appagent
+          service.name: aparavi
+          service.subcomponent: app
+        target: ''
+    prospector.scanner.check_interval: 15s
+    type: filestream
+  - close.on_state_change.inactive: 2m
+    enabled: true
+    harvester_limit: 32
+    id: filestream-worker
+    ignore_older: 24h
+    parsers:
+    - multiline:
+        match: after
+        negate: true
+        pattern: ^\d{1,2}\/\d{1,2}\/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+        type: pattern
+    paths:
+    - C:\ProgramData\aparavi*\worker\logs\*
+    - C:\Program Files\aparavi*\worker\monitor.log*
+    processors:
+    - add_fields:
+        fields:
+          service.component: worker
+          service.name: aparavi
+          service.subcomponent: app
+        target: ''
+    prospector.scanner.check_interval: 15s
+    type: filestream
+  - close.on_state_change.inactive: 2m
+    enabled: true
+    harvester_limit: 32
+    id: filestream-platform
+    ignore_older: 24h
+    parsers:
+    - multiline:
+        match: after
+        negate: true
+        pattern: ^\d{1,2}\/\d{1,2}\/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+        type: pattern
+    paths:
+    - C:\ProgramData\aparavi*\platform\logs\*
+    - C:\Program Files\aparavi*\platform\monitor.log*
+    processors:
+    - add_fields:
+        fields:
+          service.component: platform
+          service.name: aparavi
+          service.subcomponent: app
+        target: ''
+    prospector.scanner.check_interval: 15s
+    type: filestream
+  modules:
+  - error:
+      enabled: true
+      var.paths:
+      - ((ansible_env.ProgramData | default(""))\MySQL\Data\*.err*
+      - ((ansible_env.ProgramData | default(""))\MySQL\Data\error.log*
+    module: mysql
+    slowlog:
+      enabled: true
+      var.paths:
+      - ((ansible_env.ProgramData | default(""))\MySQL\Data\*-slow.log*
+processors:
+- add_fields:
+    fields:
+      service.environment: << env >>
+    target: ''
+    when:
+      not:
+        has_fields:
+        - service.environment
+- add_fields:
+    fields:
+      service.instance: '<< service_instance >>'
+    target: ''
+    when:
+      not:
+        has_fields:
+        - service.instance
+- drop_fields:
+    fields:
+    - agent.ephemeral_id
+    - agent.hostname
+    - agent.id
+    - agent.name
+    - agent.type
+    - agent.version
+    - ecs.version
+    - event.original
+    - input.type
+    - log.source.address
+    - log.offset
+    ignore_missing: true
+queue.spool:
+  file:
+    page_size: 16KiB
+    path: ${path.data}/spool.dat
+    size: 50MiB
+  write:
+    buffer_size: 10MiB
+    flush.events: 1024
+    flush.timeout: 5s
+
+
+###############################################################################
+############################# Libbeat Config ##################################
+# Base config file used by all other beats for using libbeat features
+
+############################# Output ##########################################
+
+output:
+  logstash:
+    hosts:
+    - <<ext_logstash_address (logstash-hz.paas.aparavi.com:5044)>>
+    ssl:
+      enabled: true
+      verification_mode: strict
+    timeout: 5
+
+
+############################# Logging #########################################
+
+logging:
+  files:
+    keepfiles: 3
+    name: filebeat
+    rotateeverybytes: 20000000
+  level: info
+  to_files: true

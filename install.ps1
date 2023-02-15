@@ -4,8 +4,8 @@ param (
     [Alias("n")][string]$profile = "aggregator-collector",
 
     [Parameter(
-    HelpMessage="Provide parentId of object to connect this application to.")]
-    [Parameter(Mandatory)][Alias("o")][string]$parentId,
+    HelpMessage="Provide parentId of object to connect this application to.",
+    Mandatory)][Alias("o")][string]$parentId,
     [Parameter(
     HelpMessage="Platform endpoint.")]
     [Alias("a")][string]$bindAddress = "preview.aparavi.com",
@@ -150,7 +150,9 @@ function get_git_repo {
   Invoke-WebRequest -Uri "https://github.com/Aparavi-Operations/aparavi-infrastructure/archive/refs/heads/${branch}.zip" -OutFile "aparavi-infra.zip"
   unzip "aparavi-infra.zip" "."
   Remove-Item -Force "aparavi-infra.zip"
-  Remove-Item -Force -Recurse "aparavi-infrastructure"
+  if (Test-Path "aparavi-infrastructure") {
+    Remove-Item -Force -Recurse "aparavi-infrastructure"
+  }
   Rename-Item -Path "aparavi-infrastructure-${gitBranch}" -NewName "aparavi-infrastructure"
 }
 
@@ -159,7 +161,7 @@ function install_mysql_exporter {
     [string]$username,
     [string]$password,
     [string]$version = "0.14.0",
-    [string]$sslversion = "3_0_7",
+    [string]$sslversion = "3_0_8",
     [string]$servicename = "prometheus-mysqld-exporter",
     [string]$nssmversion = "2.24-103-gdee49fc",
     [string]$listenaddress = "0.0.0.0",
@@ -167,7 +169,7 @@ function install_mysql_exporter {
     [string]$mysqlhost = "localhost",
     [string]$mysqlport = "3306"
   )
-  Invoke-WebRequest -Uri "https://slproweb.com/download/Win64OpenSSL_Light-${sslversion}.msi" -OutFile "openssl.msi"
+  Invoke-WebRequest -Uri "https://slproweb.com/download/Win64OpenSSL_Light-${sslversion}.msi" -OutFile "openssl.msi" -ErrorAction Stop
 
   Write-Host "Installing OpenSSL..."
   $installeropts = @(
@@ -176,6 +178,9 @@ function install_mysql_exporter {
     '/quiet'
   )
   Start-Process -Wait -NoNewWindow -FilePath "msiexec.exe" -ArgumentList $installeropts
+
+  Write-Host "MySQL exporter config folder creation..."
+  New-Item "$env:ProgramData\${servicename}" -Force -ItemType Directory > $null
 
   Write-Host "Generating self-signed certs..."
   $certgenoptions = @(
@@ -196,8 +201,7 @@ function install_mysql_exporter {
   )
   Start-Process -Wait -NoNewWindow -FilePath "$env:ProgramFiles\OpenSSL-Win64\bin\openssl.exe" -ArgumentList $certgenoptions
 
-  Write-Host "MySQL exporter folder and config generation..."  
-  New-Item "$env:ProgramData\${servicename}" -Force -ItemType Directory > $null
+  Write-Host "MySQL exporter config generation..."
   $exporterconfig = New-Object -TypeName PSObject
   Add-NoteProperty -InputObject $exporterconfig -Property "tls_server_config.cert_file" -Value "$env:ProgramData\${servicename}\cert.crt"
   Add-NoteProperty -InputObject $exporterconfig -Property "tls_server_config.key_file" -Value "$env:ProgramData\${servicename}\cert.key"
@@ -205,7 +209,7 @@ function install_mysql_exporter {
 
   Invoke-WebRequest -Uri "https://github.com/prometheus/mysqld_exporter/releases/download/v${version}/mysqld_exporter-${version}.windows-amd64.zip" -OutFile "pme.zip"
   Invoke-WebRequest -Uri "https://nssm.cc/ci/nssm-${nssmversion}.zip" -OutFile "nssm.zip"
-  Stop-Service -Name "${servicename}"
+  Stop-Service -Name "${servicename}" -ErrorAction SilentlyContinue > $null
 
   unzip "pme.zip" "$env:ProgramFiles"
   unzip "nssm.zip" "$env:ProgramFiles"
@@ -259,7 +263,6 @@ function install_prometheus_exporter {
     "EXTRA_FLAGS=--collector.process.whitelist=`"${collector_whitelist}`""
   )
   Start-Process -Wait -NoNewWindow -FilePath "msiexec.exe" -ArgumentList $installeropts
-  #Remove-Item -Force "exporter.msi"
 }
 
 function Add-NoteProperty {
@@ -475,7 +478,7 @@ function run_installer {
   if (@("appagt", "appliance", "platform") -contains $type) {
     $installeropts = $installeropts + @(
       "/cfg.node.nodeName=`"${hostname}-${type}`""
-      "/cfg.node.hostname=`"${hostname}`""
+      "/cfg.node.hostName=`"${hostname}`""
       "/DBTYPE=mysql"
       "/DBHOST=${dbhost}"
       "/DBPORT=${dbport}"
@@ -506,7 +509,7 @@ function pwgen {
   )
   Add-Type -AssemblyName System.Web
   # Generate random password
-  return [System.Web.Security.Membership]::GeneratePassword($length,2)
+  return ([System.Web.Security.Membership]::GeneratePassword($length,2) -Replace '[?@"'':()|]', '_')
 }
 
 function fill_password {
@@ -607,7 +610,7 @@ function check_option_by_profile {
 
 # Fill variables
 $appType = app_type_selector -profile $profile
-$hostname = $env:computername,
+$hostname = $env:computername
 $mysqlPass = fill_password -initial $mysqlPass
 $rootDbPass = fill_password -initial $rootDbPass
 $monitoringDbPass = fill_password -initial $monitoringDbPass
@@ -624,7 +627,7 @@ if (check_option_by_profile -profile $profile -option "mysql") {
 if (check_option_by_profile -profile $profile -option "app") {
   get_app_installer -url $downloadUrl
   run_installer -type $appType -hostname $hostname -parentId $parentId -dbname "${appType}-${hostname}" -address $bindAddress -dbuser $mysqlUser -dbpassword $mysqlPass -platformurl $platformUrl -dbhost $dbhost -dbport $dbport -rdbhost $rdbhost -rdbport $rdbport
-  #configure_app -type $appType -hostname $hostname -parentId $parentId -bindAddress $bindAddress -dbuser $mysqlUser -dbpass $mysqlPass -dbname "${appType}-${hostname}"
+  configure_app -type $appType -hostname $hostname -parentId $parentId -bindAddress $bindAddress -dbuser $mysqlUser -dbpass $mysqlPass -dbname "${appType}-${hostname}"
   start_app -type $appType
 }
 

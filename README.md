@@ -30,7 +30,6 @@ Additional options:
 * `-b` Git branch to clone. Default: "main"
 * `-u` URL to download AppAgent. Default: "https://aparavi.jfrog.io/artifactory/aparavi-installers-public/linux-installer-latest.run"
 
-
 ## Example
 `install.sh -n "full" -c "client_name" -o "parent_object_id`
 

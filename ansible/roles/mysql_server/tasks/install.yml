@@ -30,6 +30,7 @@
   get_url:
     url: "{{ mysql_deb_repo }}"
     dest: /usr/src
+    http_agent: "Wget/1.21"
     # validate_certs: "no"
 
 - name: MySQL | Install MySQL repo deb

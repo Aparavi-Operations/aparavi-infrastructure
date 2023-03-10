@@ -158,6 +158,8 @@ fi
 [[ -z "$MYSQL_APPUSER_NAME" ]]&&MYSQL_APPUSER_NAME="aparavi_app"
 [[ -z "$INSTALL_TMP_DIR" ]]&&INSTALL_TMP_DIR="/tmp/debian11-install"
 [[ -z "$GIT_BRANCH" ]]&&GIT_BRANCH="main"
+[[ -z "$DOWNLOAD_URL" ]]&&DOWNLOAD_URL_VAR=""||DOWNLOAD_URL_VAR="aparavi_app_url=$DOWNLOAD_URL"
+
 
 ########################
 ### for servers without sshd service
@@ -188,3 +190,5 @@ ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansi
                     logstash_address=$LOGSTASH_ADDRESS \
                     install_tmp_dir=$INSTALL_TMP_DIR \
                     aparavi_app_url=$DOWNLOAD_URL"
+                    $DOWNLOAD_URL_VAR"
+                    

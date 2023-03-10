@@ -188,4 +188,4 @@ ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansi
                     aparavi_parent_object=$APARAVI_PARENT_OBJECT_ID \
                     logstash_address=$LOGSTASH_ADDRESS \
                     install_tmp_dir=$INSTALL_TMP_DIR \
-                    $DOWNLOAD_URL_VAR"                    
+                    $DOWNLOAD_URL_VAR"

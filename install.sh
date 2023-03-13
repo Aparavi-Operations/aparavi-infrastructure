@@ -171,7 +171,7 @@ if [[ $# -ge 1 ]]; then
     exit 1
 fi
 
-[[ "$VERBOSE_ON_OFF" == "off" ]]&&VERBOSE=""||VERBOSE="-v"
+[[ "$VERBOSE_ON_OFF" == "off" ]]&&VERBOSE=""||VERBOSE="-vvv"
 
 [[ -z "$APARAVI_PLATFORM_BIND_ADDR" ]]&&APARAVI_PLATFORM_BIND_ADDR="preview.aparavi.com"
 
@@ -205,7 +205,7 @@ export ANSIBLE_ROLES_PATH="$INSTALL_TMP_DIR/aparavi-infrastructure/ansible/roles
 ansible-galaxy install -r roles/requirements.yml
 
 ###### run ansible ######
-ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansible/playbooks/base/main.yml -vvv -i 127.0.0.1, $VERBOSE $NODE_ANSIBLE_TAGS \
+ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansible/playbooks/base/main.yml -i 127.0.0.1, $VERBOSE $NODE_ANSIBLE_TAGS \
     --extra-vars    "mysql_appuser_name=$MYSQL_APPUSER_NAME \
                     aparavi_platform_bind_addr=$APARAVI_PLATFORM_BIND_ADDR \
                     aparavi_platform_addr=$APARAVI_PLATFORM_ADDR \

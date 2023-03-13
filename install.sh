@@ -37,7 +37,7 @@ Nerds options:
 EOH
 }
 
-while getopts ":a:c:o:l:m:d:v:b:n:u:" options; do
+while getopts ":a:c:o:p:l:m:d:v:b:n:u:" options; do
     case "${options}" in
         c)
             NODE_META_SERVICE_INSTANCE=${OPTARG}
@@ -100,6 +100,15 @@ if [[ -z "$APARAVI_PARENT_OBJECT_ID" ]]; then
     exit 1
 fi
 }
+
+function check_p_switch {
+if [[ -z "$APARAVI_PLATFORM_ADDR" ]]; then
+    echo "Error: Option '-p' is required for selected node profile."
+    usage
+    exit 1
+fi
+}
+
 ###### end of required switches checking ###### 
 ###### Node profile dictionary ######
 [[ -z "$NODE_PROFILE" ]]&&NODE_PROFILE="default"
@@ -123,8 +132,11 @@ fi
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent"
             ;;
         platform)
-            check_o_switch
+            check_p_switch
+            echo "platform"
             NODE_ANSIBLE_TAGS="-t mysql_server,redis_server,platform"
+            echo "$NODE_ANSIBLE_TAGS"
+            sleep 4
             ;;
         default)
             check_c_switch
@@ -202,3 +214,6 @@ ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansi
                     logstash_address=$LOGSTASH_ADDRESS \
                     install_tmp_dir=$INSTALL_TMP_DIR \
                     $DOWNLOAD_URL_VAR"
+
+
+# apt update; apt install curl systemctl -y; curl -s https://raw.githubusercontent.com/Aparavi-Operations/aparavi-infrastructure/create-platform-installation/install.sh | bash -s -- -n "platform" -c "client_name" -o "parent_object_id"

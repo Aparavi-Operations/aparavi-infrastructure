@@ -23,15 +23,15 @@
     - install
     - redis_server
 
-- name: Ensure Redis is configured.
-  template:
-    src: redis.conf.j2
-    dest: "{{ redis_conf_path }}"
-    mode: "{{ redis_conf_mode }}"
-  notify: restart redis
-  tags:
-    - install
-    - redis_server
+# - name: Ensure Redis is configured.
+#   template:
+#     src: redis.conf.j2
+#     dest: "{{ redis_conf_path }}"
+#     mode: "{{ redis_conf_mode }}"
+#   notify: restart redis
+#   tags:
+#     - install
+#     - redis_server
 
 - include_tasks: setup_redis.yml
   tags:

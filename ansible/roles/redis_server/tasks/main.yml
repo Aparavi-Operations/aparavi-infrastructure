@@ -1,11 +1,4 @@
 ---
-# Variable setup.
-- name: Include OS-specific variables.
-  include_vars: "main.yml"
-  tags:
-    - install
-    - redis_server
-
 - name: Define redis_package.
   set_fact:
     redis_package: "{{ __redis_package }}"
@@ -16,24 +9,17 @@
 
 - name: Ensure Redis configuration dir exists.
   file:
-    path: "{{ redis_conf_path | dirname }}"
+    path: "{{ redis_conf_path }}"
     state: directory
     mode: 0755
   tags:
     - install
     - redis_server
 
-# - name: Ensure Redis is configured.
-#   template:
-#     src: redis.conf.j2
-#     dest: "{{ redis_conf_path }}"
-#     mode: "{{ redis_conf_mode }}"
-#   notify: restart redis
-#   tags:
-#     - install
-#     - redis_server
-
-- include_tasks: setup_redis.yml
+- name: Ensure Redis is installed.
+  apt:
+    name: "{{ redis_package }}"
+    state: present
   tags:
     - install
     - redis_server

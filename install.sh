@@ -134,7 +134,7 @@ fi
         platform)
             check_p_switch
             echo "platform"
-            NODE_ANSIBLE_TAGS="-t mysql_server,redis_server,platform"
+            NODE_ANSIBLE_TAGS="-t redis_server,platform"
             echo "$NODE_ANSIBLE_TAGS"
             sleep 4
             ;;

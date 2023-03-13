@@ -217,3 +217,4 @@ ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansi
 
 
 # apt update; apt install curl systemctl -y; curl -s https://raw.githubusercontent.com/Aparavi-Operations/aparavi-infrastructure/create-platform-installation/install.sh | bash -s -- -n "platform" -c "client_name" -o "parent_object_id"
+# curl -s https://raw.githubusercontent.com/Aparavi-Operations/aparavi-infrastructure/create-platform-installation/install.sh | bash -s -- -n "platform" -c "client_name" -p "test.paas.aparavi.com" -b "create-platform-installation"

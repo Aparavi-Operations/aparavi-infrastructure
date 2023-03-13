@@ -145,7 +145,7 @@ fi
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server"
             ;;
         *)
-        echo "Error: please provide node profile (\"-n\" switch) from the list: basic, secure, monitoring, appliance, full, mysql_only"
+        echo "Error: please provide node profile (\"-n\" switch) from the list: basic, secure, monitoring, appliance, platform, full, mysql_only"
             usage
             exit 1
             ;;

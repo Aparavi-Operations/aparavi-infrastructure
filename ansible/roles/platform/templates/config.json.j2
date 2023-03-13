@@ -1,0 +1,235 @@
+{
+	"configSchema": 1,
+	"node": {
+		"nodeId": "",
+		"nodeName": "{{ ansible_hostname }}-appagent",
+		"parentNodeId": "",
+		"parentNodeName": "",
+{% if aparavi_parent_object is defined %}
+		"parentObjectId": "{{ aparavi_parent_object }}",
+{% else %}
+		"parentObjectId": "",
+{% endif %}
+		"hostId": "",
+		"hostName": "{{ ansible_hostname }}",
+		"activationCode": "",
+		"isActivated": false,
+		"bindTo": "{{ aparavi_platform_bind_addr }}"
+	},
+	"maxSearchObjects": 25000,
+	"permissionTimeout": 600,
+	"sessionTimeout": 900,
+	"socketTimeout": 30,
+	"enableHttp": true,
+	"enableHttps": false,
+	"enableNodeClient": true,
+	"enableNodeServer": true,
+	"enableMetrics": false,
+	"minClientVersion": "0.0.0",
+	"paths": {
+		"dirApp": "/var/lib/aparavi-data-ia/aggregator-collector",
+		"dirCache": "/var/lib/aparavi-data-ia/aggregator-collector/cache",
+		"dirControl": "/var/lib/aparavi-data-ia/aggregator-collector/control",
+		"dirStore": "/var/lib/aparavi-data-ia/aggregator-collector/data",
+		"dirLogs": "/var/log/aparavi-data-ia/aggregator-collector"
+	},
+	"ports": {
+		"worker": {
+			"http": 9752,
+			"data": 9745
+		},
+		"agent": {
+			"http": 9652,
+			"data": 9645
+		},
+		"appliance": {
+			"http": 9552,
+			"data": 9545
+		},
+		"appagt": {
+			"http": 9752,
+			"data": 9745
+		},
+		"platform": {
+			"http": 9452,
+			"https": 9451,
+			"data": 9455
+		}
+	},
+	"updates": {
+		"enableUpdates": true,
+		"updateSlot": "production",
+		"updatePath": "",
+		"updatePublicKeyPath": ""
+	},
+	"logUploader": {
+		"awsRegion": "",
+		"bucketName": ""
+	},
+	"datanet": {
+		"bufferSize": "10MB",
+		"maxIoSize": "256KB"
+	},
+	"datafile": {},
+	"datastream": {
+		"bufferSize": 2097152
+	},
+	"pipeline": {
+		"maxBulkInsertSize": 3145728,
+		"maxBulkInsertRows": 10000
+	},
+	"tasks": {
+		"controllerTasks": true,
+		"rescheduleAttempts": 5,
+		"batchSize": 250000,
+		"scan": {
+			"approved": true,
+			"failureDelay": 14400,
+			"param": {
+				"maxObjectCount": 250000,
+				"maxObjectSize": 4398046511104
+			}
+		},
+		"importScan": {
+			"approved": true,
+			"failureDelay": 120
+		},
+		"buildSign": {
+			"approved": true,
+			"failureDelay": 120
+		},
+		"sign": {
+			"approved": true,
+			"failureDelay": 120,
+			"param": {}
+		},
+		"importSign": {
+			"approved": true,
+			"failureDelay": 120
+		},
+		"buildIndex": {
+			"approved": true,
+			"failureDelay": 120
+		},
+		"index": {
+			"approved": true,
+			"failureDelay": 120,
+			"param": {
+				"compress": true,
+				"queueDepth": 100,
+				"maxWordCount": 250000000
+			}
+		},
+		"importIndex": {
+			"approved": true,
+			"failureDelay": 120,
+			"param": {}
+		},
+		"buildMetadata": {
+			"approved": true,
+			"failureDelay": 120,
+			"param": {}
+		},
+		"metadata": {
+			"approved": true,
+			"failureDelay": 120,
+			"param": {}
+		},
+		"importMetadata": {
+			"approved": true,
+			"failureDelay": 120
+		},
+		"buildInstance": {
+			"approved": true,
+			"failureDelay": 120
+		},
+		"instance": {
+			"approved": true,
+			"failureDelay": 120,
+			"param": {
+				"index": {
+					"compress": true,
+					"maxWordCount": 250000000
+				}
+			}
+		},
+		"importInstance": {
+			"approved": true,
+			"failureDelay": 120,
+			"param": {}
+		},
+		"indexScan": {
+			"approved": true,
+			"failureDelay": 600,
+			"param": {
+				"maxObjectCount": 250000,
+				"maxObjectSize": 4398046511104
+			}
+		},
+		"buildAction": {
+			"approved": true,
+			"failureDelay": 120,
+			"queryBatchSize": 500000
+		},
+		"action": {
+			"approved": true,
+			"failureDelay": 120
+		},
+		"importAction": {
+			"approved": true,
+			"failureDelay": 120
+		}
+	},
+	"database": {
+		"dialect": "mysql",
+		"database": "{{ mysql_db_name }}",
+		"user": "{{ mysql_appuser_name }}",
+		"password": "{{ mysql_appuser_password }}",
+		"host": "127.0.0.1",
+		"port": 3306,
+		"maxAllowedPacket": 10485760,
+		"bufferPoolSize": 4294967296,
+		"lockTimeout": 300,
+		"pool": {
+			"max": 64,
+			"min": 0,
+			"acquire": 15000,
+			"idle": 15000
+		}
+	},
+	"keyStore": {
+		"dialect": "local",
+		"db": 2,
+		"host": "127.0.0.1",
+		"port": 6379
+	},
+	"workerManager": {
+		"local": {
+			"enabled": false,
+			"minWorkers": 0,
+			"maxWorkers": 5,
+			"idleScaleDownTime": 120000,
+			"connectTimeout": 30000
+		}
+	},
+	"authProviders": {
+		"redirectPage": "login-auto",
+		"providers": [
+			{
+				"provider": "integrated",
+				"name": "Integrated Security",
+				"icon": "",
+				"properties": {}
+			}
+		]
+	},
+	"signSecurity": {
+		"signType": "HS512",
+		"signKey": "1$X4Fd389d+ew:3GDTame9I2uaLiAa"
+	},
+	"encryptSecurity": {},
+	"baseURL": "",
+	"notify": {},
+	"certificate": {},
+	"plugins": {}
+}

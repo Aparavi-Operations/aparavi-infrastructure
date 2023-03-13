@@ -15,6 +15,7 @@ Required options:
        full_without_partitions           - all featured above without partitions, requires both "-c" and "-o" switches
        full                              - all featured above, requires both "-c" and "-o" switches. The most secure version of the application installation. There may be server issues
        mysql_only                        - basic profile + MySQL server
+       platform                          - OS hardening + SSH hardening + MySQL server + Redis Server + Aparavi Platform + logs shipping agent + monitoring metrics
 
        ############ lazy dba profile ############
        mysql_only  - basic profile + MySQL server
@@ -116,6 +117,10 @@ fi
         appliance)
             check_o_switch
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent"
+            ;;
+        platform)
+            check_o_switch
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,redis_server,platform"
             ;;
         default)
             check_c_switch

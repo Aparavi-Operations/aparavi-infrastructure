@@ -158,6 +158,9 @@ fi
 [[ "$VERBOSE_ON_OFF" == "off" ]]&&VERBOSE=""||VERBOSE="-v"
 
 [[ -z "$APARAVI_PLATFORM_BIND_ADDR" ]]&&APARAVI_PLATFORM_BIND_ADDR="preview.aparavi.com"
+
+[[ -z "$APARAVI_PLATFORM_ADDR" ]]&&APARAVI_PLATFORM_ADDR="test.paas.aparavi.com"
+
 [[ -z "$LOGSTASH_ADDRESS" ]]&&LOGSTASH_ADDRESS="logstash.aparavi.com"
 
 [[ -z "$MYSQL_APPUSER_NAME" ]]&&MYSQL_APPUSER_NAME="aparavi_app"
@@ -189,6 +192,7 @@ ansible-galaxy install -r roles/requirements.yml
 ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansible/playbooks/base/main.yml -i 127.0.0.1, $VERBOSE $NODE_ANSIBLE_TAGS \
     --extra-vars    "mysql_appuser_name=$MYSQL_APPUSER_NAME \
                     aparavi_platform_bind_addr=$APARAVI_PLATFORM_BIND_ADDR \
+                    aparavi_platform_addr=$APARAVI_PLATFORM_ADDR \
                     node_meta_service_instance=$NODE_META_SERVICE_INSTANCE \
                     aparavi_parent_object=$APARAVI_PARENT_OBJECT_ID \
                     logstash_address=$LOGSTASH_ADDRESS \

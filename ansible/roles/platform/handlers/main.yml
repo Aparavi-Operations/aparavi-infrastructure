@@ -1,5 +1,5 @@
 ---
-- name: Restart Aparavi AppAgent
+- name: Restart Aparavi Platform
   systemd:
     name: aparavi-data-ia-{{ aparavi_app_type }}
     state: restarted

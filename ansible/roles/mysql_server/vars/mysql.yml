@@ -21,3 +21,4 @@ mysql_users:
     password: "{{ mysql_appuser_password }}"
     priv:
       - '{{ mysql_db_name }}.*:ALL'
+      - 'platform_%.*:ALL'

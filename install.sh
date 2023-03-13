@@ -25,6 +25,7 @@ Required options:
 
 Additional options:
     -a Aparavi platform bind address. Default "preview.aparavi.com"
+    -p Aparavi platform address. Default "test.paas.aparavi.com"
     -l Logstash address. Default: "logstash.aparavi.com"
     -m Mysql AppUser name. Default: "aparavi_app"
 
@@ -46,6 +47,9 @@ while getopts ":a:c:o:l:m:d:v:b:n:u:" options; do
             ;;
         a)
             APARAVI_PLATFORM_BIND_ADDR=${OPTARG}
+            ;;
+        p)
+            APARAVI_PLATFORM_ADDR=${OPTARG}
             ;;
         l)
             LOGSTASH_ADDRESS=${OPTARG}

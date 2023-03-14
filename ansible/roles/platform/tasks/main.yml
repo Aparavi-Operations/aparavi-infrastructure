@@ -5,7 +5,7 @@
   register: app_installer
   tags:
     - platform
-    
+
 - name: Aparavi Platform | Download installer
   get_url:
     url: "{{ aparavi_app_url }}"
@@ -42,11 +42,3 @@
     path: /etc/opt/aparavi-data-ia/{{ aparavi_app_type }}/config/config.json
   tags:
     - platform
-
-# - name: Aparavi Platform | Copy configuration file
-#   template:
-#     src:  config.json.j2
-#     dest: /etc/opt/aparavi-data-ia/{{ aparavi_app_type }}/config/config.json
-#   notify: Restart Aparavi Platform
-#   tags:
-#     - platform

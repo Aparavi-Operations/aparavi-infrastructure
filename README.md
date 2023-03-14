@@ -61,3 +61,8 @@ Partitions parameters:
 * `home_size`    Size of `/home/` partition. Default:"5g"
 * `tmp_size`     Size of `/tmp/` partition. Default:"2g"
 * `vtmp_size`    Size of `/var/tmp/` partition. Default::"2g"
+
+# More usage examples   
+
+Platform installation, with custom branch:   
+* `curl -s https://raw.githubusercontent.com/Aparavi-Operations/aparavi-infrastructure/create-platform-installation/install.sh | bash -s -- -n "platform" -c "client_name" -p "test.paas.aparavi.com" -b "create-platform-installation"`

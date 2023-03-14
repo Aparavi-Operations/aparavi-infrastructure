@@ -3,7 +3,7 @@ aparavi_app_type: "platform"
 aparavi_platform_addr: "test.paas.aparavi.com"
 aparavi_parent_object: "f9975da9-5262-414d-8fd3-e5c565175827"
 aparavi_app_url: "https://aparavi.jfrog.io/artifactory/aparavi-installers-public/linux-installer-latest.run"
-aparavi_app_installer_path: "/tmp/linux-installer-latest.run"
+
 # Database.
 db_type: "mysql"
 db_addr: "127.0.0.1"

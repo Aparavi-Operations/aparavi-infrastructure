@@ -1,15 +1,17 @@
 
-- name: Get file information
+- name: Aparavi Platform | Find out if installer exists already
   stat:
-    path: "{{ aparavi_app_installer_path }}"
-  register: installer
-
+    path: "/tmp/linux-installer-latest.run"
+  register: app_installer
+  tags:
+    - platform
+    
 - name: Aparavi Platform | Download installer
   get_url:
     url: "{{ aparavi_app_url }}"
-    dest: "{{ aparavi_app_installer_path }}"
+    dest: "/tmp/linux-installer-latest.run"
     mode: '0775'
-  when: not installer.stat.exists
+  when: not app_installer.stat.exists
   tags:
     - platform
 

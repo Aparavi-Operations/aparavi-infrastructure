@@ -56,3 +56,10 @@
           - "It's necessary to have a password for root user. Wazuh 2532."
           - "Compliance: cis 1.5.3; cis_csc 5.1; nist_800_53 CM.1; pci_dss 2.2.4; tsc CC5.2"
       when: root_password is defined
+    - name: Extra | How to conect to the platform
+      debug:
+        msg: 
+          - "You can connect to the platform using this link: http://{{ ansible_all_ipv4_addresses | ipaddr('private') | first }}:9452"
+          - "Platform login credentials: root/root"
+      tags:
+        - platform

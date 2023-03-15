@@ -23,6 +23,7 @@ Required options:
 
 Additional options:
 * `-a` Actual Aparavi platform URL to connect your AppAgent to. Default "preview.aparavi.com"
+* `-p` Name of the installed Platform, if you select `-n` profile `platform`. Default "test.paas.aparavi.com"
 * `-l` Actual Aparavi log collector URL. Default: "logstash.aparavi.com"
 * `-m` Mysql AppUser name. Default: "aparavi_app"
 * `-d` Install TMP dir. Default: "/tmp/debian11-install"
@@ -64,7 +65,7 @@ Partitions parameters:
 
 ### More usage examples   
 
-Platform installation, with custom branch:   
+Platform installation:    
 * `curl -s https://raw.githubusercontent.com/Aparavi-Operations/aparavi-infrastructure/main/install.sh | bash -s -- -n "platform" -c "client_name" -p "test.paas.aparavi.com"`
 
 ## Usage Example for Windows PowerShell Script
@@ -79,10 +80,10 @@ $tempFolder = New-Item -ItemType Directory -Path $env:TEMP\MyTempFolder
 $url = 'https://raw.githubusercontent.com/Aparavi-Operations/aparavi-infrastructure/main/install.ps1'
 Invoke-WebRequest $url -OutFile "$tempFolder\install.ps1"
 cd $tempFolder
-& .\install.ps1 -a "preview.aparavi.com" -o "aaa-bbbb-cccc-dddd-eeeee"
+& .\install.ps1 -a "preview.aparavi.com" -o "aaa-bbbb-cccc-dddd-eeee"
 ```
 3. replace `preview.aparavi.com` with the URL of the Aparavi platform you want to connect to.
-4. Replace `aaa-bbbb-cccc-dddd-eeeee` with the parentId of the object you want to connect the application to.
+4. Replace `aaa-bbbb-cccc-dddd-eeee` with the parentId of the object you want to connect the application to.
 
 ### Parameters
 

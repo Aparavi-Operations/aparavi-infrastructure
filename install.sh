@@ -133,10 +133,7 @@ fi
             ;;
         platform)
             check_p_switch
-            echo "platform"
-            NODE_ANSIBLE_TAGS="-t mysql_server,redis_server,platform"
-            echo "$NODE_ANSIBLE_TAGS"
-            sleep 4
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,redis_server,platform"
             ;;
         default)
             check_c_switch

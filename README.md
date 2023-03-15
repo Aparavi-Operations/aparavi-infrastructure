@@ -3,7 +3,7 @@
 Aparavi repository that stores all of the code used for infrastructure provisioning on a customer side
 Contains Ansible roles for configuring and deploying Aparavi app on baremetal hosts.
 
-## Usage Example
+## Usage Example for Linux script
 
 `curl -s https://raw.githubusercontent.com/Aparavi-Operations/aparavi-infrastructure/main/install.sh | sudo bash -s -- -n "full" -c "client_name" -o "parent_object_id"`
 
@@ -62,7 +62,36 @@ Partitions parameters:
 * `tmp_size`     Size of `/tmp/` partition. Default:"2g"
 * `vtmp_size`    Size of `/var/tmp/` partition. Default::"2g"
 
-# More usage examples   
+### More usage examples   
 
 Platform installation, with custom branch:   
 * `curl -s https://raw.githubusercontent.com/Aparavi-Operations/aparavi-infrastructure/create-platform-installation/install.sh | bash -s -- -n "platform" -c "client_name" -p "test.paas.aparavi.com" -b "create-platform-installation"`
+
+## Usage Example for Windows PowerShell Script
+
+To install aggregator-collector on a Windows host, follow these steps:
+
+1. Open Windows Terminal as an administrator.   
+2. Copy and paste the following code:   
+
+```
+$tempFolder = New-Item -ItemType Directory -Path $env:TEMP\MyTempFolder
+$url = 'https://raw.githubusercontent.com/Aparavi-Operations/aparavi-infrastructure/create-platform-installation/install.ps1'
+Invoke-WebRequest $url -OutFile "$tempFolder\install.ps1"
+cd $tempFolder
+& .\install.ps1 -a "preview.aparavi.com" -o "aaa-bbbb-cccc-dddd-eeeee"
+```
+3. replace `preview.aparavi.com` with the URL of the Aparavi platform you want to connect to.
+4. Replace `aaa-bbbb-cccc-dddd-eeeee` with the parentId of the object you want to connect the application to.
+
+### Parameters
+
+The PowerShell script accepts the following parameters:
+
+* `-n` profile: The deploy profile to apply. The options are `aggregator-collector`, `aggregator`, `collector`, `platform`, `worker`, `db`, or `monitoring-only`. The default value is `aggregator-collector`.
+* `-o` parentId: The parentId of the object to connect this application to. This parameter is mandatory.
+* `-a` bindAddress: The platform endpoint. The default value is `preview.aparavi.com`.
+* `-l` logstashAddress: The Logstash connecting endpoint. The default value is `logstash-ext.paas.aparavi.com:5044`.
+* `-b` gitBranch: The automation branch name. The default value is `main`.
+* `-u` downloadUrl: The application installer URL. The default value is `https://aparavi.jfrog.io/artifactory/aparavi-installers-public/windows-installer-latest.exe`.
+* `-m` mysqlUser: The application database username. The default value is `aparavi_app`.

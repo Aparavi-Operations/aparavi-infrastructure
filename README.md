@@ -23,7 +23,7 @@ Required options:
 
 Additional options:
 * `-a` Actual Aparavi platform URL to connect your AppAgent to. Default "preview.aparavi.com"
-* `-p` Name of the installed Platform, if you select `-n` profile `platform`. Default "test.paas.aparavi.com"
+* `-p` DNS Name of the installed Platform, if you select `-n` profile `platform`. Default "test.paas.aparavi.com"
 * `-l` Actual Aparavi log collector URL. Default: "logstash.aparavi.com"
 * `-m` Mysql AppUser name. Default: "aparavi_app"
 * `-d` Install TMP dir. Default: "/tmp/debian11-install"

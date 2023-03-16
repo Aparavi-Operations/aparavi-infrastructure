@@ -3,3 +3,4 @@
   systemd:
     name: aparavi-data-ia-{{ aparavi_app_type }}
     state: restarted
+    

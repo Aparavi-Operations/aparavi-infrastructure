@@ -211,4 +211,3 @@ ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansi
                     logstash_address=$LOGSTASH_ADDRESS \
                     install_tmp_dir=$INSTALL_TMP_DIR \
                     $DOWNLOAD_URL_VAR"
-                    

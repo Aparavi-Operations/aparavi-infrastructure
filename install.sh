@@ -15,6 +15,7 @@ Required options:
        full_without_partitions           - all featured above without partitions, requires both "-c" and "-o" switches
        full                              - all featured above, requires both "-c" and "-o" switches. The most secure version of the application installation. There may be server issues
        mysql_only                        - basic profile + MySQL server
+       platform                          - OS hardening + SSH hardening + MySQL server + Redis Server + Aparavi Platform + logs shipping agent + monitoring metrics
 
        ############ lazy dba profile ############
        mysql_only  - basic profile + MySQL server
@@ -24,6 +25,7 @@ Required options:
 
 Additional options:
     -a Aparavi platform bind address. Default "preview.aparavi.com"
+    -p Aparavi platform address. Default "test.paas.aparavi.com"
     -l Logstash address. Default: "logstash.aparavi.com"
     -m Mysql AppUser name. Default: "aparavi_app"
 
@@ -35,7 +37,7 @@ Nerds options:
 EOH
 }
 
-while getopts ":a:c:o:l:m:d:v:b:n:u:" options; do
+while getopts ":a:c:o:p:l:m:d:v:b:n:u:" options; do
     case "${options}" in
         c)
             NODE_META_SERVICE_INSTANCE=${OPTARG}
@@ -45,6 +47,9 @@ while getopts ":a:c:o:l:m:d:v:b:n:u:" options; do
             ;;
         a)
             APARAVI_PLATFORM_BIND_ADDR=${OPTARG}
+            ;;
+        p)
+            APARAVI_PLATFORM_ADDR=${OPTARG}
             ;;
         l)
             LOGSTASH_ADDRESS=${OPTARG}
@@ -95,6 +100,15 @@ if [[ -z "$APARAVI_PARENT_OBJECT_ID" ]]; then
     exit 1
 fi
 }
+
+function check_p_switch {
+if [[ -z "$APARAVI_PLATFORM_ADDR" ]]; then
+    echo "Error: Option '-p' is required for selected node profile."
+    usage
+    exit 1
+fi
+}
+
 ###### end of required switches checking ###### 
 ###### Node profile dictionary ######
 [[ -z "$NODE_PROFILE" ]]&&NODE_PROFILE="default"
@@ -117,6 +131,10 @@ fi
             check_o_switch
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,aparavi_appagent"
             ;;
+        platform)
+            check_p_switch
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,redis_server,platform"
+            ;;
         default)
             check_c_switch
             check_o_switch
@@ -136,7 +154,7 @@ fi
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server"
             ;;
         *)
-        echo "Error: please provide node profile (\"-n\" switch) from the list: basic, secure, monitoring, appliance, full, mysql_only"
+        echo "Error: please provide node profile (\"-n\" switch) from the list: basic, secure, monitoring, appliance, platform, full, mysql_only"
             usage
             exit 1
             ;;
@@ -150,9 +168,12 @@ if [[ $# -ge 1 ]]; then
     exit 1
 fi
 
-[[ "$VERBOSE_ON_OFF" == "off" ]]&&VERBOSE=""||VERBOSE="-v"
+[[ "$VERBOSE_ON_OFF" == "off" ]]&&VERBOSE=""||VERBOSE="-vv"
 
 [[ -z "$APARAVI_PLATFORM_BIND_ADDR" ]]&&APARAVI_PLATFORM_BIND_ADDR="preview.aparavi.com"
+
+[[ -z "$APARAVI_PLATFORM_ADDR" ]]&&APARAVI_PLATFORM_ADDR="test.paas.aparavi.com"
+
 [[ -z "$LOGSTASH_ADDRESS" ]]&&LOGSTASH_ADDRESS="logstash.aparavi.com"
 
 [[ -z "$MYSQL_APPUSER_NAME" ]]&&MYSQL_APPUSER_NAME="aparavi_app"
@@ -184,6 +205,7 @@ ansible-galaxy install -r roles/requirements.yml
 ansible-playbook --connection=local $INSTALL_TMP_DIR/aparavi-infrastructure/ansible/playbooks/base/main.yml -i 127.0.0.1, $VERBOSE $NODE_ANSIBLE_TAGS \
     --extra-vars    "mysql_appuser_name=$MYSQL_APPUSER_NAME \
                     aparavi_platform_bind_addr=$APARAVI_PLATFORM_BIND_ADDR \
+                    aparavi_platform_addr=$APARAVI_PLATFORM_ADDR \
                     node_meta_service_instance=$NODE_META_SERVICE_INSTANCE \
                     aparavi_parent_object=$APARAVI_PARENT_OBJECT_ID \
                     logstash_address=$LOGSTASH_ADDRESS \

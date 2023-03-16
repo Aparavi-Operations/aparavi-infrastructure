@@ -32,6 +32,43 @@
   tags:
     - platform
 
+- name: Aparavi Platform | add --init-db-objs to startapp.sh
+  replace:
+    path: /opt/aparavi-data-ia/{{ aparavi_app_type }}/app/support/linux/startapp.sh
+    regexp: 'ModuleArg="--moduleType=$AppType"'
+    replace: 'ModuleArg="--moduleType=$AppType --init-db-objs"'
+    backup: yes
+  tags:
+    - platform
+
+- name: Aparavi Platform | Check .dia directory
+  stat:
+    path: /root/.dia/
+  register: dia
+  tags:
+    - platform
+
+- name: Aparavi Platform | Create .dia directory
+  file:
+    path: /root/.dia/
+    state: directory
+    mode: '0600'
+    owner: root
+    group: root
+  when: not dia.stat.exists
+  tags:
+    - platform
+
+- name: Aparavi Platform | Copy initDbObjs file
+  template:
+    src:  initDbObjs.json.j2
+    dest: /root/.dia/initDbObjs.json
+  notify: Restart Aparavi AppAgent
+  tags:
+    - aparavi_appagent
+  tags:
+    - platform
+
 - name: Aparavi Platform | Run the Platform
   ansible.builtin.shell: /opt/aparavi-data-ia/{{ aparavi_app_type }}/app/startapp
   tags:
@@ -42,3 +79,4 @@
     path: /etc/opt/aparavi-data-ia/{{ aparavi_app_type }}/config/config.json
   tags:
     - platform
+

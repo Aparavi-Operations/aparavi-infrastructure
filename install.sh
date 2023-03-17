@@ -135,6 +135,10 @@ fi
             check_p_switch
             NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,redis_server,platform"
             ;;
+        platform_logs)
+            check_p_switch
+            NODE_ANSIBLE_TAGS="-t os_hardening,ssh_hardening,mysql_server,redis_server,platform,logs_collection,prometheus_node_exporter"
+            ;;
         default)
             check_c_switch
             check_o_switch

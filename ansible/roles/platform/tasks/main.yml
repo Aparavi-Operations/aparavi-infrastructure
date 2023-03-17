@@ -42,7 +42,7 @@
   replace:
     path: /opt/aparavi-data-ia/{{ aparavi_app_type }}/app/support/linux/startapp.sh
     regexp: '--logcon'
-    replace: '--logcon --init-db-objs"'
+    replace: '--logcon --init-db-objs'
     backup: yes
   tags:
     - platform

@@ -26,7 +26,9 @@
 - name: Aparavi Platform | Generate aparavi platform client password
   set_fact:
     aparavi_platform_client_password: "{{ aparavi_platform_client_password_gen }}"
-
+  tags:
+    - platform
+    
 - name: Aparavi Platform | Install platform
   ansible.builtin.shell: ./linux-installer-latest.run -- /APPTYPE={{ aparavi_app_type }} /RDBHOST={{redis_cache_address}} /LOCALURL={{ aparavi_platform_addr }} /DBTYPE={{ db_type }} /DBHOST={{ db_addr }} /DBPORT={{ db_port }} /DBUSER={{ db_user }} /DBPSWD={{ db_passwd }} /SILENT /NOSTART
   args:

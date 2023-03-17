@@ -63,5 +63,6 @@
           - "Aparavi ports: http: 9452, data port: 9455"
           - "You should open both ports in your FW"
           - "Platform login credentials: root/root"
+      ignore_errors: true
       tags:
         - platform

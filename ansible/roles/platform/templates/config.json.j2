@@ -1,0 +1,237 @@
+{
+        "configSchema": 2,
+        "node": {
+                "nodeId": "",
+                "nodeName": "{{ ansible_hostname }}-platform",
+                "parentNodeId": "",
+                "parentNodeName": "",
+                "parentObjectId": "",
+                "hostId": "",
+                "hostName": "{{ ansible_hostname }}",
+                "activationCode": "",
+                "isActivated": false,
+                "bindTo": ""
+        },
+        "maxSearchObjects": 25000,
+        "permissionTimeout": 600,
+        "sessionTimeout": 900,
+        "socketTimeout": 30,
+        "enableHttp": true,
+        "enableHttps": true,
+        "enableNodeClient": false,
+        "enableNodeServer": true,
+        "enableMetrics": false,
+        "minClientVersion": "0.0.0",
+        "paths": {
+                "dirApp": "/var/lib/aparavi-data-ia/platform",
+                "dirCache": "/var/lib/aparavi-data-ia/platform/cache",
+                "dirControl": "/var/lib/aparavi-data-ia/platform/control",
+                "dirStore": "/var/lib/aparavi-data-ia/platform/data",
+                "dirLogs": "/var/log/aparavi-data-ia/platform"
+        },
+        "ports": {
+                "worker": {
+                        "http": 9852
+                },
+                "agent": {
+                        "http": 9652,
+                        "data": 9645
+                },
+                "appliance": {
+                        "http": 9552,
+                        "data": 9545
+                },
+                "appagt": {
+                        "http": 9752,
+                        "data": 9745
+                },
+                "platform": {
+                        "http": 9452,
+                        "https": 9451,
+                        "data": 9455
+                }
+        },
+        "updates": {
+                "enableUpdates": true,
+                "updateSlot": "production",
+                "updatePath": "https://updates.aparavi.com/updates-dia-aparavi",
+                "updatePublicKeyPath": "https://updates.aparavi.com/public-keys/update_package_key/update_package_public_key.pem"
+        },
+        "logUploader": {
+                "awsRegion": "",
+                "bucketName": ""
+        },
+        "datanet": {
+                "bufferSize": "10MB",
+                "maxIoSize": "256KB"
+        },
+        "datafile": {},
+        "datastream": {
+                "bufferSize": 2097152
+        },
+        "pipeline": {
+                "maxBulkInsertSize": 3145728,
+                "maxBulkInsertRows": 10000
+        },
+        "tasks": {
+                "controllerTasks": false,
+                "rescheduleAttempts": 5,
+                "batchSize": 250000,
+                "scan": {
+                        "approved": true,
+                        "failureDelay": 14400,
+                        "param": {
+                                "maxObjectCount": 250000,
+                                "maxObjectSize": 4398046511104
+                        }
+                },
+                "importScan": {
+                        "approved": true,
+                        "failureDelay": 120
+                },
+                "buildSign": {
+                        "approved": true,
+                        "failureDelay": 120
+                },
+                "sign": {
+                        "approved": true,
+                        "failureDelay": 120,
+                        "param": {}
+                },
+                "importSign": {
+                        "approved": true,
+                        "failureDelay": 120
+                },
+                "buildIndex": {
+                        "approved": true,
+                        "failureDelay": 120
+                },
+                "index": {
+                        "approved": true,
+                        "failureDelay": 120,
+                        "param": {
+                                "compress": true,
+                                "queueDepth": 100,
+                                "maxWordCount": 250000000
+                        }
+                },
+                "importIndex": {
+                        "approved": true,
+                        "failureDelay": 120,
+                        "param": {}
+                },
+                "buildMetadata": {
+                        "approved": true,
+                        "failureDelay": 120,
+                        "param": {}
+                },
+                "metadata": {
+                        "approved": true,
+                        "failureDelay": 120,
+                        "param": {}
+                },
+                "importMetadata": {
+                        "approved": true,
+                        "failureDelay": 120
+                },
+                "buildInstance": {
+                        "approved": true,
+                        "failureDelay": 120
+                },
+                "instance": {
+                        "approved": true,
+                        "failureDelay": 120,
+                        "param": {
+                                "index": {
+                                        "compress": true,
+                                        "maxWordCount": 250000000
+                                }
+                        }
+                },
+                "importInstance": {
+                        "approved": true,
+                        "failureDelay": 120,
+                        "param": {}
+                },
+                "indexScan": {
+                        "approved": true,
+                        "failureDelay": 600,
+                        "param": {
+                                "maxObjectCount": 250000,
+                                "maxObjectSize": 4398046511104
+                        }
+                },
+                "buildAction": {
+                        "approved": true,
+                        "failureDelay": 120,
+                        "queryBatchSize": 250000
+                },
+                "action": {
+                        "approved": true,
+                        "failureDelay": 120
+                },
+                "importAction": {
+                        "approved": true,
+                        "failureDelay": 120
+                }
+        },
+		"database": {
+			"dialect": "mysql",
+			"database": "{{ mysql_platform_db_name }}",
+			"user": "{{ mysql_appuser_name }}",
+			"password": "{{ mysql_appuser_password }}",
+			"host": "127.0.0.1",
+			"port": 3306,
+			"maxAllowedPacket": 10485760,
+			"bufferPoolSize": 4294967296,
+			"lockTimeout": 300,
+			"pool": {
+				"max": 64,
+				"min": 0,
+				"acquire": 15000,
+				"idle": 15000
+			}
+		},
+        "keyStore": {
+                "dialect": "redis",
+                "db": 0,
+                "host": "127.0.0.1",
+                "port": 6379
+        },
+        "workerManager": {
+                "local": {
+                        "enabled": true,
+                        "minWorkers": 1,
+                        "maxWorkers": 5,
+                        "idleScaleDownTime": 120000,
+                        "connectTimeout": 30000
+                }
+        },
+        "authProviders": {
+                "redirectPage": "login-auto",
+                "providers": [
+                        {
+                                "provider": "integrated",
+                                "name": "Integrated Security",
+                                "icon": "",
+                                "properties": {}
+                        }
+                ]
+        },
+        "signSecurity": {
+                "signType": "HS512",
+                "signKey": "1$X4Fd389d+ew:3GDTame9I2uaLiAa"
+        },
+        "encryptSecurity": {},
+        "baseURL": "{{ aparavi_platform_addr }}",
+        "notify": {
+                "clientInvited": "activate",
+                "accountInvited": "activate",
+                "accountActivated": "login",
+                "passwordChange": "change-password"
+        },
+        "certificate": {
+                "host": "{{ aparavi_platform_addr }}"
+        },
+        "plugins": {}
+}

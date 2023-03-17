@@ -42,3 +42,11 @@
     path: /etc/opt/aparavi-data-ia/{{ aparavi_app_type }}/config/config.json
   tags:
     - platform
+
+- name: Aparavi AppAgent | Copy configuration file
+  template:
+    src:  config.json.j2
+    dest: /etc/opt/aparavi-data-ia/{{ aparavi_app_type }}/config/config.json
+  notify: Restart Aparavi Platform
+  tags:
+    - aparavi_appagent

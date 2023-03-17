@@ -14,7 +14,10 @@ mysql_databases:
   - name: "{{ mysql_db_name }}"
     collation: utf8mb4_unicode_ci
     encoding: utf8mb4
-
+  - name: "{{ mysql_platform_db_name }}"
+    collation: utf8mb4_unicode_ci
+    encoding: utf8mb4
+    
 mysql_users:
   - name: "{{mysql_appuser_name}}"
     host: "%"

@@ -49,4 +49,4 @@
     dest: /etc/opt/aparavi-data-ia/{{ aparavi_app_type }}/config/config.json
   notify: Restart Aparavi Platform
   tags:
-    - aparavi_appagent
+    - platform

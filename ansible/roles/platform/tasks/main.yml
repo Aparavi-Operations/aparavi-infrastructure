@@ -28,7 +28,7 @@
     aparavi_platform_client_password: "{{ aparavi_platform_client_password_gen }}"
   tags:
     - platform
-    
+
 - name: Aparavi Platform | Install platform
   ansible.builtin.shell: ./linux-installer-latest.run -- /APPTYPE={{ aparavi_app_type }} /RDBHOST={{redis_cache_address}} /LOCALURL={{ aparavi_platform_addr }} /DBTYPE={{ db_type }} /DBHOST={{ db_addr }} /DBPORT={{ db_port }} /DBUSER={{ db_user }} /DBPSWD={{ db_passwd }} /SILENT /NOSTART
   args:
@@ -41,8 +41,8 @@
 - name: Aparavi Platform | add --init-db-objs to startapp.sh
   replace:
     path: /opt/aparavi-data-ia/{{ aparavi_app_type }}/app/support/linux/startapp.sh
-    regexp: 'ModuleArg="--moduleType=$AppType"'
-    replace: 'ModuleArg="--moduleType=$AppType --init-db-objs"'
+    regexp: '--logcon'
+    replace: '--logcon --init-db-objs"'
     backup: yes
   tags:
     - platform

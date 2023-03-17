@@ -1,6 +1,6 @@
 ---
 
-- name: 'Check Node Exporter service status'
+- name: 'Prometheus | Check Node Exporter service status'
   service:
     name: 'node_exporter'
     state: '{{ node_exporter_service_state }}'

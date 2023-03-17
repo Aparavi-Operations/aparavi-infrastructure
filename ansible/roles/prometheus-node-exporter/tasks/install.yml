@@ -1,17 +1,17 @@
 ---
 
-- name: 'Install | Install dependencies'
+- name: 'Prometheus | Install dependencies'
   package:
     name: '{{ node_exporter_custom.dependencies }}'
     state: 'present'
 
-- name: 'Install | Create the node_exporter group'
+- name: 'Prometheus | Create the node_exporter group'
   group:
     name: '{{ node_exporter_system_group }}'
     state: 'present'
     system: true
 
-- name: 'Install | Create the node_exporter user'
+- name: 'Prometheus | Create the node_exporter user'
   user:
     name: '{{ node_exporter_system_user }}'
     groups: '{{ node_exporter_system_group }}'
@@ -20,7 +20,7 @@
     system: true
     createhome: false
 
-- name: 'Check installation'
+- name: 'Prometheus | Check installation'
   stat:
     path: '/usr/local/bin/node_exporter'
   register: '_installation'
@@ -28,13 +28,13 @@
 - name: 'Installation block'
   block:
 
-    - name: 'Create temporary directory'
+    - name: 'Prometheus | Create temporary directory'
       tempfile:
         state: 'directory'
       check_mode: false
       register: '_tmp_dir'
 
-    - name: 'Install | Download node_exporter binary to local folder'
+    - name: 'Prometheus | Download node_exporter binary to local folder'
       get_url:
         url: '{{ node_exporter_tar_url }}'
         dest: '{{ _tmp_dir.path }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_arch }}.tar.gz'
@@ -43,13 +43,13 @@
       retries: 5
       delay: 2
 
-    - name: 'Install | Unpack node_exporter binary'
+    - name: 'Prometheus | Unpack node_exporter binary'
       unarchive:
         src: '{{ _tmp_dir.path }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_arch }}.tar.gz'
         dest: '{{ _tmp_dir.path }}'
         remote_src: true
 
-    - name: 'Install | Propagate node_exporter binaries'
+    - name: 'Prometheus | Propagate node_exporter binaries'
       copy:
         src: '{{ _tmp_dir.path }}/node_exporter-{{ node_exporter_version }}.linux-{{ node_exporter_arch }}/node_exporter'
         dest: '/usr/local/bin/node_exporter'
@@ -61,7 +61,7 @@
 
   always:
 
-    - name: 'Remove Temp dir'
+    - name: 'Prometheus | Remove Temp dir'
       file:
         path: '{{ _tmp_dir.path }}'
         state: 'absent'
@@ -69,7 +69,7 @@
   check_mode: false
   when: 'not _installation.stat.exists or node_exporter_force_install'
 
-- name: 'Install | Copy the Node Exporter systemd service file'
+- name: 'Prometheus | Copy the Node Exporter systemd service file'
   template:
     src: 'node_exporter.service.j2'
     dest: '/etc/systemd/system/node_exporter.service'
@@ -81,7 +81,7 @@
     - 'restart node_exporter'
   when: 'ansible_service_mgr == "systemd"'
 
-- name: 'Install | Copy the Node Exporter init.d service file'
+- name: 'Prometheus | Copy the Node Exporter init.d service file'
   template:
     src: 'node_exporter.j2'
     dest: '/etc/init.d/node_exporter'
@@ -92,7 +92,7 @@
     - 'restart node_exporter (init.d)'
   when: 'ansible_service_mgr != "systemd"'
 
-- name: 'Install | Allow Node Exporter port in SELinux on RedHat OS family'
+- name: 'Prometheus | Allow Node Exporter port in SELinux on RedHat OS family'
   seport:
     ports: '{{ node_exporter_web_listen_port }}'
     proto: 'tcp'

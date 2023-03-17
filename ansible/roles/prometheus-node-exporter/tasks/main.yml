@@ -1,26 +1,26 @@
 ---
 
-- name: 'Set required facts'
+- name: 'Prometheus | Set required facts'
   import_tasks: 'set_facts.yml'
   tags:
     - 'configure'
     - prometheus_node_exporter
 
-- name: 'Check installation'
+- name: 'Prometheus | Check installation'
   import_tasks: 'install.yml'
   tags:
     - 'install'
     - prometheus_node_exporter
   become: true
 
-- name: 'Check configuration'
+- name: 'Prometheus | Check configuration'
   import_tasks: 'configure.yml'
   tags:
     - 'configure'
     - prometheus_node_exporter
   become: true
 
-- name: 'Register node-exporter in Consul'
+- name: 'Prometheus | Register node-exporter in Consul'
   import_tasks: 'consul_integration.yml'
   when: 'node_exporter_consul_integration'
   tags:

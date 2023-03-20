@@ -23,12 +23,57 @@
     - never
     - platform
 
+- name: Aparavi Platform | Generate aparavi platform client password
+  set_fact:
+    aparavi_platform_client_password: "{{ aparavi_platform_client_password_gen }}"
+  tags:
+    - platform
+
 - name: Aparavi Platform | Install platform
   ansible.builtin.shell: ./linux-installer-latest.run -- /APPTYPE={{ aparavi_app_type }} /RDBHOST={{redis_cache_address}} /LOCALURL={{ aparavi_platform_addr }} /DBTYPE={{ db_type }} /DBHOST={{ db_addr }} /DBPORT={{ db_port }} /DBUSER={{ db_user }} /DBPSWD={{ db_passwd }} /SILENT /NOSTART
   args:
     chdir: /tmp/
     warn: no
   notify: Restart Aparavi Platform
+  tags:
+    - platform
+
+- name: Aparavi Platform | add --init-db-objs to startapp.sh
+  replace:
+    path: /opt/aparavi-data-ia/{{ aparavi_app_type }}/app/support/linux/startapp.sh
+    regexp: '--logcon'
+    replace: '--logcon --init-db-objs'
+    backup: yes
+  tags:
+    - platform
+
+- name: Aparavi Platform | Check .dia directory
+  stat:
+    path: /root/.dia/
+  register: dia
+  tags:
+    - platform
+
+- name: Aparavi Platform | Create .dia directory
+  file:
+    path: /root/.dia/
+    state: directory
+    mode: '0600'
+    owner: root
+    group: root
+  when: not dia.stat.exists
+  tags:
+    - platform
+
+- name: Aparavi Platform | Copy initDbObjs file
+  template:
+    src:  initDbObjs.json.j2
+    dest: /root/.dia/initDbObjs.json
+    mode: '0600'
+    owner: root
+    group: root
+  tags:
+    - aparavi_appagent
   tags:
     - platform
 
@@ -40,5 +85,13 @@
 - name: Aparavi Platform | Wait until default config file created
   wait_for:
     path: /etc/opt/aparavi-data-ia/{{ aparavi_app_type }}/config/config.json
+  tags:
+    - platform
+
+- name: Aparavi AppAgent | Copy configuration file
+  template:
+    src:  config.json.j2
+    dest: /etc/opt/aparavi-data-ia/{{ aparavi_app_type }}/config/config.json
+  notify: Restart Aparavi Platform
   tags:
     - platform

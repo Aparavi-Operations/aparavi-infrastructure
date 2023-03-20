@@ -16,3 +16,4 @@ mysql_service_enabled: true
 mysql_service_state: started
 
 mysql_db_name: appagent
+mysql_platform_db_name: platform_db

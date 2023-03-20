@@ -62,6 +62,8 @@
           - "You can connect to the platform using this link: http://{{ ansible_all_ipv4_addresses | ipaddr('private') | first }}:9452"
           - "Aparavi ports: http: 9452, data port: 9455"
           - "You should open both ports in your FW"
+          - "Client created with username password: {{ aparavi_platform_client_username }}/{{ aparavi_platform_client_password }}"
+          - "Object ID of the Clients account is: {{ aparavi_platform_client_objectid }}. Use it to connect appagent to it."
           - "Platform login credentials: root/root"
       ignore_errors: true
       tags:

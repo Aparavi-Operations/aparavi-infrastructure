@@ -32,4 +32,5 @@ pipenv install --skip-lock
 #   playbooks/monitoring/main.yml
 
 cd "$INSTALL_TMP_DIR/aparavi-infrastructure/monitoring"
+pipenv run jinja -E ENVIRONMENT -E PLATFORM_IP .env.j2 -o .env
 pipenv run jinja -E ENVIRONMENT -E PLATFORM_IP vmagent/scrape_static.yml.j2 -o vmagent/scrape_static.yml

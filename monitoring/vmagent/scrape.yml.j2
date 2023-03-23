@@ -6,13 +6,13 @@
         service: 'aparavi'
         component: 'platform'
         subcomponent: 'app'
-        env: '#{ENVIRONMENT}'
+        env: '{{ENVIRONMENT}}'
       targets:
         - '<<aggregator_ip>>:9100'
     - labels:
         service: 'aparavi'
         component: 'collector'
         subcomponent: 'app'
-        env: '<<deployment>>'
+        env: '{{ENVIRONMENT}}'
       targets:
         - '<<collector_ip>>:9100'

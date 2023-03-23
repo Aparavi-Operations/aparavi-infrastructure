@@ -1,7 +1,0 @@
----
-
-global:
-  scrape_interval: 1m
-
-scrape_config_files:
-  - 'scrape_*.yml'

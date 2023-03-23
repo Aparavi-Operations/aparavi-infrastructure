@@ -33,3 +33,5 @@ pipenv install --skip-lock
 cd "$INSTALL_TMP_DIR/aparavi-infrastructure/monitoring"
 pipenv run jinja -E ENVIRONMENT -E SERVICE_INSTANCE -E VM_EXTERNAL_URL .env.j2 -o .env
 pipenv run jinja -E PLATFORM_IP vmagent/scrape_static.yml.j2 -o vmagent/scrape_static.yml
+docker compose up -d
+docker compose ps

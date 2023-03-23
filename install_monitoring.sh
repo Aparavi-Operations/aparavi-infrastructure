@@ -2,7 +2,7 @@
 
 INSTALL_TMP_DIR=~
 
-cd "$INSTALL_TMP_DIR"
+cd "$INSTALL_TMP_DIR/aparavi-infrastructure/ansible"
 export ANSIBLE_ROLES_PATH="$INSTALL_TMP_DIR/aparavi-infrastructure/ansible/roles"
 
 ansible-playbook \

@@ -19,7 +19,7 @@
         owner: 'root'
         group: 'root'
         mode: 0750
-        become: true
+      become: true
   when: 'docker_compose_version is version("2.0", ">=")'
 
 - name: 'Docker Compose | Download docker_componse binary'

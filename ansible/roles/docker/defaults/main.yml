@@ -1,0 +1,13 @@
+---
+
+docker_version: '5:20.10.23~3-0~debian-bullseye'
+docker_key: 'https://download.docker.com/linux/debian/gpg'
+docker_repo: 'deb [arch=amd64] https://download.docker.com/linux/debian bullseye stable'
+dependencies:
+  - 'apt-transport-https'
+  - 'ca-certificates'
+  - 'gnupg2'
+  - 'curl'
+
+docker_compose_install: false
+docker_compose_version: '2.17.0'

@@ -1,0 +1,36 @@
+---
+
+- name: 'Docker Compose | Prepare V1'
+  ansible.builtin.set_fact:
+    docker_compose_directory: '/usr/local/bin'
+    docker_compose_source: 'https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-linux-x86_64'
+  when: 'docker_compose_version is version("2.0", "<")'
+
+- block:
+    - name: 'Docker Compose | Prepare V2'
+      ansible.builtin.set_fact:
+        docker_compose_directory: '/usr/local/lib/docker/cli-plugins'
+        docker_compose_source: 'https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-linux-x86_64'
+
+    - name: 'Docker Compose | Create directory for V2 binary'
+      ansible.builtin.file:
+        path: '{{ docker_compose_directory }}'
+        state: 'directory'
+        owner: 'root'
+        group: 'root'
+        mode: 0750
+        become: true
+  when: 'docker_compose_version is version("2.0", ">=")'
+
+- name: 'Docker Compose | Download docker_componse binary'
+  ansible.builtin.get_url:
+    url: '{{ docker_compose_source }}'
+    dest: '{{ docker_compose_directory }}/docker-compose'
+    owner: 'root'
+    group: 'root'
+    mode: '0750'
+  register: '__result'
+  until: '__result is succeeded'
+  retries: 5
+  delay: 2
+  become: true

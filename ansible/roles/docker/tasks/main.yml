@@ -1,0 +1,11 @@
+---
+
+- ansible.builtin.include_tasks: 'install-docker.yml'
+  become: true
+  tags:
+    - 'docker'
+
+- ansible.builtin.include_tasks: 'install-docker-compose.yml'
+  tags:
+    - 'compose'
+  when: 'docker_compose_install | bool'

@@ -17,7 +17,6 @@ export ENVIRONMENT=ohio
 export SERVICE_INSTANCE=automation_test
 export PLATFORM_IP="$(get_local_ip)"
 
-
 export ANSIBLE_ROLES_PATH="$INSTALL_TMP_DIR/aparavi-infrastructure/ansible/roles"
 export PIPENV_PIPFILE="$INSTALL_TMP_DIR/aparavi-infrastructure/Pipfile"
 
@@ -32,5 +31,5 @@ pipenv install --skip-lock
 #   playbooks/monitoring/main.yml
 
 cd "$INSTALL_TMP_DIR/aparavi-infrastructure/monitoring"
-pipenv run jinja -E ENVIRONMENT -E SERVICE_INSTANCE .env.j2 -o .env
+pipenv run jinja -E ENVIRONMENT -E SERVICE_INSTANCE -E VM_EXTERNAL_URL .env.j2 -o .env
 pipenv run jinja -E PLATFORM_IP vmagent/scrape_static.yml.j2 -o vmagent/scrape_static.yml

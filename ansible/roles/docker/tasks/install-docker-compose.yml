@@ -28,7 +28,7 @@
     dest: '{{ docker_compose_directory }}/docker-compose'
     owner: 'root'
     group: 'root'
-    mode: '0750'
+    mode: 0750
   register: '__result'
   until: '__result is succeeded'
   retries: 5

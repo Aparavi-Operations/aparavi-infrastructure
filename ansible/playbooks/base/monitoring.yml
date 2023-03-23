@@ -1,0 +1,7 @@
+---
+
+- name: Monitoring
+  hosts: all
+  gather_facts: true
+  roles:
+    - 'docker'

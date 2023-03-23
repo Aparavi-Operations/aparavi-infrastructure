@@ -1,0 +1,95 @@
+---
+
+version: '3.5'
+services:
+  vmagent:
+    container_name: vmagent
+    image: victoriametrics/vmagent
+    depends_on:
+      - "victoriametrics"
+    ports:
+      - 8429:8429
+    volumes:
+      - vmagentdata:/vmagentdata
+      - ./vmagent/:/etc/vmagent/
+    command:
+      - '--promscrape.config=/etc/vmagent/vmagent.yml'
+      - '--remoteWrite.url=http://victoriametrics:8428/api/v1/write'
+    networks:
+      - vm_net
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    restart: on-failure
+  victoriametrics:
+    container_name: victoriametrics
+    image: victoriametrics/victoria-metrics
+    ports:
+      - 8428:8428
+      - 8089:8089
+      - 8089:8089/udp
+      - 2003:2003
+      - 2003:2003/udp
+      - 4242:4242
+    volumes:
+      - vmdata:/storage
+    command:
+      - '--storageDataPath=/storage'
+      - '--graphiteListenAddr=:2003'
+      - '--opentsdbListenAddr=:4242'
+      - '--httpListenAddr=:8428'
+      - '--influxListenAddr=:8089'
+    networks:
+      - vm_net
+    restart: on-failure
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:8.4.3
+    depends_on:
+      - "victoriametrics"
+    ports:
+      - 80:3000
+    volumes:
+      - grafanadata:/var/lib/grafana
+      - ./grafana/:/etc/grafana/
+    networks:
+      - vm_net
+    restart: on-failure
+  vmalert:
+    container_name: vmalert
+    image: victoriametrics/vmalert
+    depends_on:
+      - "victoriametrics"
+      - "alertmanager"
+    ports:
+      - 8880:8880
+    volumes:
+      - ./vmalert/:/etc/vmalert/
+    command:
+      - '--datasource.url=http://victoriametrics:8428/'
+      - '--remoteRead.url=http://victoriametrics:8428/'
+      - '--remoteWrite.url=http://victoriametrics:8428/'
+      - '--notifier.url=http://alertmanager:9093/'
+      - '--rule=/etc/vmalert/*.yml'
+      # display source of alerts in grafana
+      - '-external.url=http://127.0.0.1:3000' #grafana outside container
+    networks:
+      - vm_net
+    restart: on-failure
+  alertmanager:
+    container_name: alertmanager
+    image:  prom/alertmanager
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+    ports:
+      - 9093:9093
+    networks:
+      - vm_net
+    restart: on-failure
+volumes:
+  vmagentdata: {}
+  vmdata: {}
+  grafanadata: {}
+networks:
+  vm_net:

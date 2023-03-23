@@ -8,7 +8,7 @@ export ENVIRONMENT=ohio
 export SERVICE_INSTANCE=automation_test
 
 export ANSIBLE_ROLES_PATH="$INSTALL_TMP_DIR/aparavi-infrastructure/ansible/roles"
-export PIPENV_PIPFILE="$INSTALL_TMP_DIR/aparavi-infrastructure/ansible/Pipfile"
+export PIPENV_PIPFILE="$INSTALL_TMP_DIR/aparavi-infrastructure/Pipfile"
 
 # Install pipenv
 apt install -y pipenv

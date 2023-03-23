@@ -13,6 +13,8 @@ services:
     command:
       - '--promscrape.config=/etc/vmagent/vmagent.yml'
       - '--remoteWrite.url=http://victoriametrics:8428/api/v1/write'
+      - '--remoteWrite.label=env=${ENVIRONMENT}'
+      - '--remoteWrite.label=service_instance=${SERVICE_INSTANCE}'
     restart: 'on-failure'
 volumes:
   vmagentdata: {}

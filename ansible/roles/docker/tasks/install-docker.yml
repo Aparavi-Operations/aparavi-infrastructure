@@ -7,12 +7,12 @@
     force_apt_get: true
     update_cache: true
 
-- name: 'Docker | Add Apt key from official docker repo'
+- name: 'Docker | Add Apt key from the official Docker repo'
   ansible.builtin.apt_key:
     url: '{{ docker_key }}'
     state: 'present'
 
-- name: 'Docker | Add docker official repository'
+- name: 'Docker | Add Docker official repository'
   ansible.builtin.apt_repository:
     repo: '{{ docker_repo }}'
     state: 'present'

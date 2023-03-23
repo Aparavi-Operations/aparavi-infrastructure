@@ -15,6 +15,6 @@ services:
       - '--remoteWrite.url=${VM_EXTERNAL_URL}'
       - '--remoteWrite.label=env=${ENVIRONMENT}'
       - '--remoteWrite.label=service_instance=${SERVICE_INSTANCE}'
-    restart: 'on-failure'
+    restart: 'unless-stopped'
 volumes:
   vmagentdata: {}

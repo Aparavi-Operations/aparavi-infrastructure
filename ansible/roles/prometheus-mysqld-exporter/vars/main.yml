@@ -1,0 +1,12 @@
+---
+
+go_arch_map:
+  x86_64: 'amd64'
+
+base_url: 'https://github.com/prometheus/mysqld_exporter/releases/download/v{{ prometheus_mysqld_exporter_version }}'
+prometheus_mysqld_exporter_arch: '{{ go_arch_map[ansible_architecture] | default(ansible_architecture) }}'
+prometheus_mysqld_exporter_tar_name: 'mysqld_exporter-{{ prometheus_mysqld_exporter_version }}.linux-{{ prometheus_mysqld_exporter_arch }}.tar.gz'
+prometheus_mysqld_exporter_tar_url: '{{ base_url }}/{{ prometheus_mysqld_exporter_tar_name }}'
+prometheus_mysqld_exporter_sha_url: '{{ base_url }}/sha256sums.txt'
+prometheus_mysqld_exporter_tar_file: '/tmp/prometheus_mysqld_exporter-{{ prometheus_mysqld_exporter_version }}.tar.gz'
+prometheus_mysqld_exporter_install_dir: '/tmp/mysqld_exporter-{{ prometheus_mysqld_exporter_version }}.linux-{{ prometheus_mysqld_exporter_arch }}'

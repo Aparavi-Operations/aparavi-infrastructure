@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Prometheus MySQLd Exporter
+After=network.target
+
+[Service]
+SyslogIdentifier=mysqld_exporter
+Restart=always
+Type=simple
+User={{ prometheus_mysqld_exporter_system_user }}
+Group={{ prometheus_mysqld_exporter_system_group }}
+Environment='DATA_SOURCE_NAME={{ mysql_username }}:{{ mysql_password | replace("%", "%%") }}@({{ mysql_hostname }}:{{ mysql_port }})/'
+ExecStart=/usr/local/bin/mysqld_exporter \
+    --web.listen-address={{ prometheus_mysqld_exporter_listen_address }}:{{ prometheus_mysqld_exporter_listen_port }} \
+    --web.config.file={{ prometheus_mysqld_exporter_config_dir }}/web_config.yml \
+    --collect.slave_status \
+    --collect.info_schema.processlist \
+    --collect.info_schema.processlist.min_time=1
+
+[Install]
+WantedBy=multi-user.target

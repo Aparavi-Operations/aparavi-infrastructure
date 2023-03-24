@@ -1,0 +1,10 @@
+---
+
+- name: 'Vector | Windows | Install | Install Vector from downloaded MSI'
+  ansible.windows.win_package:
+    path: 'https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-x64.msi'
+
+- name: 'Vector | Windows | Install | Create data_dir'
+  ansible.windows.win_file:
+    path: '{{ vector_data_dir }}'
+    state: 'directory'

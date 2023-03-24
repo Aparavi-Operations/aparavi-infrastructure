@@ -1,0 +1,29 @@
+---
+
+- name: 'Vector | Linux | Include vars'
+  ansible.builtin.include_vars: 'linux.yml'
+  tags:
+    - 'install'
+    - 'configure'
+
+- name: 'Vector | Linux | Install'
+  ansible.builtin.import_tasks: 'install.yml'
+  become: true
+  tags:
+    - 'install'
+
+- name: 'Vector | Linux | Configure'
+  ansible.builtin.import_tasks: 'configure.yml'
+  become: true
+  tags:
+    - 'configure'
+
+- name: 'Vector | Linux | Set service state'
+  ansible.builtin.service:
+    name: 'vector'
+    state: '{{ vector_started | ternary("started", "stopped") }}'
+    enabled: '{{ vector_enabled }}'
+  become: true
+  tags:
+    - 'install'
+    - 'configure'

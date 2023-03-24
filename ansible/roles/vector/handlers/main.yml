@@ -1,0 +1,21 @@
+---
+
+- name: 'Restart Vector Linux'
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: 'vector'
+    state: 'restarted'
+  become: true
+  when: 'vector_started'
+
+- name: 'Reload Vector Linux'
+  ansible.builtin.systemd:
+    name: 'vector'
+    state: 'reloaded'
+  become: true
+  when: 'vector_started'
+
+- name: 'Restart Vector Windows service'
+  ansible.windows.win_service:
+    name: 'vector'
+    state: 'restarted'

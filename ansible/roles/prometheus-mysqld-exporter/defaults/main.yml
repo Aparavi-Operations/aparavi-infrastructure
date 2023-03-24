@@ -1,0 +1,28 @@
+---
+
+mysql_hostname: 'localhost'
+mysql_password: ''
+mysql_port: '3306'
+mysql_username: ''
+
+prometheus_mysqld_exporter_version: '0.14.0'
+prometheus_mysqld_exporter_listen_address: '0.0.0.0'
+prometheus_mysqld_exporter_listen_port: '9104'
+prometheus_mysqld_exporter_service_enabled: true
+prometheus_mysqld_exporter_service_name: 'prometheus-mysqld-exporter'
+prometheus_mysqld_exporter_service_state: 'started'
+prometheus_mysqld_exporter_system_group: 'mysqld-exp'
+prometheus_mysqld_exporter_system_user: 'mysqld-exp'
+prometheus_mysqld_exporter_tar_file: 'prometheus-mysqld-exporter'
+prometheus_mysqld_exporter_tls: true
+prometheus_mysqld_exporter_tls_cert: ''
+prometheus_mysqld_exporter_tls_key: ''
+
+prometheus_mysqld_exporter_config_dir: '{{
+    (ansible_env.ProgramData + "/" + prometheus_mysqld_exporter_service_name)
+  if ansible_os_family == "Windows" else
+    ("/etc/" + prometheus_mysqld_exporter_service_name)
+  }}'
+
+prometheus_mysqld_exporter_nssm_version: '2.24-103-gdee49fc'
+prometheus_mysqld_exporter_win_service_name: 'prometheus-mysqld-exporter'

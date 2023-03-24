@@ -1,0 +1,23 @@
+---
+
+- name: 'Vector | Linux | Configure | Set config file location'
+  ansible.builtin.copy:
+    dest: '/etc/default/vector'
+    content: >-
+      VECTOR_CONFIG={{ vector_config_file }}
+    mode: 0600
+    owner: '{{ vector_os_user }}'
+    group: '{{ vector_os_group }}'
+  notify:
+    - 'Restart Vector Linux'
+
+- name: 'Vector | Linux | Configure | Deploy configuration'
+  ansible.builtin.copy:
+    dest: '{{ vector_config_file }}'
+    content: '{{ vector_conf | to_nice_yaml }}'
+    mode: 0640
+    owner: '{{ vector_os_user }}'
+    group: '{{ vector_os_group }}'
+    validate: 'vector validate --config-yaml %s'
+  notify:
+    - 'Reload Vector Linux'

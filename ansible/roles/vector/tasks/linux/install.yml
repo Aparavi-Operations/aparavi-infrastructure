@@ -1,0 +1,65 @@
+---
+
+- name: 'Vector | Linux | Install | Get required ansible facts'
+  ansible.builtin.setup:
+    filter:
+      - 'ansible_distribution'
+      - 'ansible_distribution_release'
+
+- name: 'Vector | Linux | Install | Import GPG key'
+  ansible.builtin.apt_key:
+    url: 'https://repositories.timber.io/public/vector/gpg.3543DB2D0A2BC4B8.key'
+    state: 'present'
+  register: '_result'
+  until: '_result is succeeded'
+  retries: 5
+  delay: 2
+
+- name: 'Vector | Linux | Install | Add repository'
+  ansible.builtin.apt_repository:
+    repo: 'deb https://repositories.timber.io/public/vector/deb/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main'
+    filename: 'timber-vector'
+    state: 'present'
+    update_cache: true
+  register: '_result'
+  until: '_result is succeeded'
+  retries: 5
+  delay: 2
+
+- name: 'Vector | Linux | Install | Install package'
+  ansible.builtin.package:
+    name: 'vector={{ vector_version }}-1'
+    state: 'present'
+    allow_downgrade: true
+  register: '_result'
+  until: '_result is succeeded'
+  retries: 5
+  delay: 2
+  notify:
+    - 'Restart Vector Linux'
+
+- name: 'Vector | Linux | Install | Create /etc/systemd/system/vector.service.d'
+  ansible.builtin.file:
+    path: '/etc/systemd/system/vector.service.d'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+
+- name: 'Vector | Linux | Install | Deploy Systemd drop-in'
+  ansible.builtin.template:
+    src: 'vector-drop-in.conf.j2'
+    dest: '/etc/systemd/system/vector.service.d/vector-drop-in.conf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify:
+    - 'Restart Vector Linux'
+
+- name: 'Vector | Linux | Install | Create data_dir'
+  ansible.builtin.file:
+    path: '{{ vector_data_dir }}'
+    state: 'directory'
+    owner: '{{ vector_os_user }}'
+    group: '{{ vector_os_group }}'
+    mode: '0750'

@@ -1,0 +1,8 @@
+---
+
+- name: 'Vector | Windows | Configure | Deploy configuration'
+  ansible.builtin.win_copy:
+    dest: '{{ vector_config_file }}'
+    content: '{{ vector_conf | to_nice_yaml }}'
+  notify:
+    - 'Restart Vector Windows service'

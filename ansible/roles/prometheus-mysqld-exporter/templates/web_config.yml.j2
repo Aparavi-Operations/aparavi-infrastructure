@@ -1,0 +1,7 @@
+---
+
+{% if prometheus_mysqld_exporter_tls %}
+tls_server_config:
+  cert_file: {{ prometheus_mysqld_exporter_config_dir }}/cert.crt
+  key_file: {{ prometheus_mysqld_exporter_config_dir }}/cert.key
+{% endif %}

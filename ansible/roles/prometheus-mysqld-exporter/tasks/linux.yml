@@ -1,0 +1,152 @@
+---
+
+- name: 'Linux | Create mySQLd exporter group'
+  ansible.builtin.group:
+    name: '{{ prometheus_mysqld_exporter_system_group }}'
+    state: 'present'
+    system: true
+
+- name: 'Linux | Create mySQLd exporter user'
+  ansible.builtin.user:
+    name: '{{ prometheus_mysqld_exporter_system_user }}'
+    groups: '{{ prometheus_mysqld_exporter_system_group }}'
+    append: true
+    shell: '/usr/sbin/nologin'
+    system: true
+    createhome: false
+
+- block:
+
+    - name: 'Linux | Get checksum list from GitHub'
+      ansible.builtin.set_fact:
+        _checksums: '{{ lookup("url", prometheus_mysqld_exporter_sha_url, wantlist=True) | list }}'
+      run_once: true
+
+    - name: 'Linux | Get checksum for {{ prometheus_mysqld_exporter_arch }} architecture'
+      ansible.builtin.set_fact:
+        prometheus_mysqld_exporter_checksum: '{{ item.split(" ")[0] }}'
+      loop: '{{ _checksums }}'
+      when: '("linux-" + prometheus_mysqld_exporter_arch + ".tar.gz") in item'
+  when: 'ansible_version.full is version("2.7", "<")'
+
+- name: 'Linux | Get checksum for {{ prometheus_mysqld_exporter_arch }} architecture'
+  ansible.builtin.set_fact:
+    prometheus_mysqld_exporter_checksum: '{{ prometheus_mysqld_exporter_sha_url }}'
+  when: 'ansible_version.full is version("2.7", ">=")'
+
+- block:
+
+    - name: 'Linux | Download mySQLd Exporter binary'
+      ansible.builtin.get_url:
+        url: '{{ prometheus_mysqld_exporter_tar_url }}'
+        dest: '{{ prometheus_mysqld_exporter_tar_file }}'
+        checksum: 'sha256:{{ prometheus_mysqld_exporter_checksum }}'
+      register: '_download_binary'
+      until: '_download_binary is succeeded'
+      retries: 5
+      delay: 2
+      notify:
+        - 'restart mysqld exporter'
+
+    - name: 'Linux | Unpack mySQLd Exporter binary'
+      ansible.builtin.unarchive:
+        src: '{{ prometheus_mysqld_exporter_tar_file }}'
+        dest: '/tmp'
+        creates: '{{ prometheus_mysqld_exporter_install_dir }}/mysqld_exporter'
+
+  delegate_to: 'localhost'
+  check_mode: false
+  run_once: true
+  become: false
+  tags:
+    - 'install'
+
+- name: 'Linux | Propagate mySQLd Exporter binaries'
+  ansible.builtin.copy:
+    src: '{{ prometheus_mysqld_exporter_install_dir }}/mysqld_exporter'
+    dest: '/usr/local/bin/mysqld_exporter'
+    mode: 0750
+    owner: '{{ prometheus_mysqld_exporter_system_user }}'
+    group: '{{ prometheus_mysqld_exporter_system_group }}'
+  notify: 'restart mysqld exporter'
+  when: 'not ansible_check_mode'
+  tags:
+    - 'install'
+
+- name: 'Linux | Copy the mySQLd exporter systemd service file'
+  ansible.builtin.template:
+    src: 'service.j2'
+    dest: '/etc/systemd/system/{{ prometheus_mysqld_exporter_service_name }}.service'
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+  notify:
+    - 'reload systemd configuration'
+    - 'restart mysqld exporter'
+
+- block:
+    - name: 'Linux | Create config dir'
+      ansible.builtin.file:
+        path: '{{ prometheus_mysqld_exporter_config_dir }}'
+        state: 'directory'
+        owner: 'root'
+        group: '{{ prometheus_mysqld_exporter_system_group }}'
+        mode: 0750
+
+    - name: 'Linux | Deploy web_config.yml'
+      ansible.builtin.template:
+        src: 'web_config.yml.j2'
+        dest: '{{ prometheus_mysqld_exporter_config_dir }}/web_config.yml'
+        owner: 'root'
+        group: '{{ prometheus_mysqld_exporter_system_group }}'
+        mode: 0640
+      notify:
+        - 'restart mysqld exporter'
+
+    - block:
+        - name: 'Linux | Generate a Self Signed CA key'
+          community.crypto.openssl_privatekey:
+            path: '/tmp/cert.key'
+            return_content: true
+          register: '__result'
+          delegate_to: 'localhost'
+
+        - name: 'Linux | Copy Self Signed CA key to host'
+          ansible.builtin.copy:
+            dest: '{{ prometheus_mysqld_exporter_config_dir }}/cert.key'
+            content: '{{ __result.privatekey }}'
+            owner: 'root'
+            group: '{{ prometheus_mysqld_exporter_system_group }}'
+            mode: 0640
+          notify:
+            - 'restart mysqld exporter'
+
+        - name: 'Linux | Generate Self signed CA cert'
+          community.crypto.x509_certificate:
+            path: '/tmp/cert.crt'
+            privatekey_path: '/tmp/cert.key'
+            provider: 'selfsigned'
+            selfsigned_not_after: '+520w'
+            return_content: true
+          register: '__result'
+          delegate_to: 'localhost'
+
+        - name: 'Linux | Copy Self signed CA cert to host'
+          ansible.builtin.copy:
+            dest: '{{ prometheus_mysqld_exporter_config_dir }}/cert.crt'
+            content: '{{ __result.certificate }}'
+            owner: 'root'
+            group: '{{ prometheus_mysqld_exporter_system_group }}'
+            mode: 0640
+          notify:
+            - 'restart mysqld exporter'
+
+      when: 'prometheus_mysqld_exporter_tls_cert | length == 0'
+
+  when: 'prometheus_mysqld_exporter_tls | bool'
+
+- name: 'Check Prometheus mySQLd Exporter service status'
+  ansible.builtin.systemd:
+    name: '{{ prometheus_mysqld_exporter_service_name }}'
+    state: '{{ prometheus_mysqld_exporter_service_state }}'
+    enabled: '{{ prometheus_mysqld_exporter_service_enabled }}'

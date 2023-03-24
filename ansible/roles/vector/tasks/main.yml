@@ -1,0 +1,9 @@
+---
+
+- name: 'Vector | Linux'
+  ansible.builtin.import_tasks: 'linux/main.yml'
+  when: 'ansible_os_family != "Windows"'
+
+- name: 'Vector | Windows'
+  ansible.builtin.import_tasks: 'windows/main.yml'
+  when: 'ansible_os_family == "Windows"'

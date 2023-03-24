@@ -1,0 +1,19 @@
+---
+
+- name: 'reload systemd configuration'
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+
+- name: 'restart mysqld exporter'
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: '{{ prometheus_mysqld_exporter_service_name }}'
+    state: 'restarted'
+  when: 'prometheus_mysqld_exporter_service_state != "stopped"'
+  become: true
+
+- name: 'restart win mysqld exporter'
+  ansible.windows.win_service:
+    name: '{{ prometheus_mysqld_exporter_win_service_name }}'
+    state: 'restarted'

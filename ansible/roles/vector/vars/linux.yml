@@ -1,0 +1,7 @@
+---
+
+vector_config_file: '/etc/vector/vector.yml'
+vector_data_dir: '/var/lib/vector'
+
+vector_os_user: 'root'
+vector_os_group: 'root'

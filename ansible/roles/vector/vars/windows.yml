@@ -1,0 +1,5 @@
+---
+
+vector_config_file: '{{ ansible_env.ProgramFiles }}\Vector\config\vector.yml'
+vector_data_dir: '{{ ansible_env.ProgramData }}\vector'
+vector_binary: '{{ ansible_env.ProgramFiles }}\Vector\bin\vector.exe'

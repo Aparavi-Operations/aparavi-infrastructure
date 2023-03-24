@@ -1,0 +1,24 @@
+---
+
+- name: 'Vector | Windows | Include vars'
+  ansible.builtin.include_vars: 'windows.yml'
+  tags:
+    - 'install'
+    - 'service'
+    - 'configure'
+
+- name: 'Vector | Windows | Install'
+  ansible.builtin.import_tasks: 'install.yml'
+  tags:
+    - 'install'
+
+- name: 'Vector | Windows | Configure'
+  ansible.builtin.import_tasks: 'configure.yml'
+  tags:
+    - 'configure'
+
+- name: 'Vector | Windows | Manage service'
+  ansible.builtin.import_tasks: 'service.yml'
+  tags:
+    - 'install'
+    - 'service'

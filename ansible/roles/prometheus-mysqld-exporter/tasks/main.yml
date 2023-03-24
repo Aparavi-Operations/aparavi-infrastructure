@@ -1,0 +1,10 @@
+---
+
+- name: 'Linux installation'
+  ansible.builtin.import_tasks: 'linux.yml'
+  when: 'ansible_os_family != "Windows"'
+  become: true
+
+- name: 'Windows installation'
+  ansible.builtin.import_tasks: 'windows.yml'
+  when: 'ansible_os_family == "Windows"'

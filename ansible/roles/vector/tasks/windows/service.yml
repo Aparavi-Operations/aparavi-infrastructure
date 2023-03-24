@@ -1,0 +1,23 @@
+---
+
+- name: 'Vector | Windows | Service | Install'
+  ansible.windows.win_command:
+    argv:
+      - '{{ vector_binary }}'
+      - 'service'
+      - 'install'
+      - '--config-yaml'
+      - '{{ vector_config_file }}'
+  register: '__result'
+  failed_when: |
+    'The specified service already exists' not in (__result.stderr | default(""))
+    and
+    'Installed Windows Service' not in (__result.stderr | default(""))
+  changed_when: |
+    'Installed Windows Service' in (__result.stderr | default(""))
+
+- name: 'Vector | Windows | Service | Configure'
+  ansible.windows.win_service:
+    name: 'vector'
+    start_mode: '{{ vector_enabled | ternary("auto", "disabled") }}'
+    state: '{{ vector_started | ternary("started", "stopped") }}'

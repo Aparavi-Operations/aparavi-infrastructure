@@ -1,0 +1,7 @@
+---
+
+vector_version: '0.28.1'
+vector_conf: {}
+
+vector_started: true
+vector_enabled: true

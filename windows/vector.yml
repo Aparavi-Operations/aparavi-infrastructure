@@ -1,0 +1,196 @@
+---
+
+data_dir: C:\ProgramData\vector
+log_schema:
+    host_key: host.name
+    source_type_key: ''
+    timestamp_key: '@timestamp'
+sinks:
+    console:
+        encoding:
+            codec: json
+        inputs:
+        - s_internal_logs
+        type: console
+    logstash_http:
+        uri: <logstash_url>
+        auth:
+            user: <user>
+            password: <password>
+            strategy: basic
+        batch:
+            max_events: 30
+            timeout_secs: 5
+        encoding:
+            codec: json
+        inputs:
+        - t_all
+        type: http
+sources:
+    s_internal_logs:
+        type: internal_logs
+    s_logs_aparavi_aggregator:
+        file_key: log.origin.file.name
+        glob_minimum_cooldown_ms: 5000
+        ignore_older_secs: 86400
+        include:
+        - D:\aparavi-data-ia\aggregator\logs\*
+        - C:\Program Files\aparavi*\aggregator\monitor.log*
+        multiline:
+            condition_pattern: ^\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+            mode: halt_before
+            start_pattern: ^\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+            timeout_ms: 1000
+        read_from: beginning
+        type: file
+    s_logs_aparavi_appagent:
+        file_key: log.origin.file.name
+        glob_minimum_cooldown_ms: 5000
+        ignore_older_secs: 86400
+        include:
+        - D:\aparavi-data-ia\appagent\logs\*
+        - C:\Program Files\aparavi*\appagent\monitor.log*
+        multiline:
+            condition_pattern: ^\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+            mode: halt_before
+            start_pattern: ^\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+            timeout_ms: 1000
+        read_from: beginning
+        type: file
+    s_logs_aparavi_collector:
+        file_key: log.origin.file.name
+        glob_minimum_cooldown_ms: 5000
+        ignore_older_secs: 86400
+        include:
+        - D:\aparavi-data-ia\collector\logs\*
+        - C:\Program Files\aparavi*\collector\monitor.log*
+        multiline:
+            condition_pattern: ^\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+            mode: halt_before
+            start_pattern: ^\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+            timeout_ms: 1000
+        read_from: beginning
+        type: file
+    s_logs_aparavi_platform:
+        file_key: log.origin.file.name
+        glob_minimum_cooldown_ms: 5000
+        ignore_older_secs: 86400
+        include:
+        - D:\aparavi-data-ia\platform\logs\*
+        - C:\Program Files\aparavi*\platform\monitor.log*
+        multiline:
+            condition_pattern: ^\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+            mode: halt_before
+            start_pattern: ^\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+            timeout_ms: 1000
+        read_from: beginning
+        type: file
+    s_logs_aparavi_worker:
+        file_key: log.origin.file.name
+        glob_minimum_cooldown_ms: 5000
+        ignore_older_secs: 86400
+        include:
+        - D:\aparavi-data-ia\worker\logs\*
+        - C:\Program Files\aparavi*\worker\monitor.log*
+        multiline:
+            condition_pattern: ^\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+            mode: halt_before
+            start_pattern: ^\d{1,2}/\d{1,2}/\d{4}, \d{1,2}:\d{2}:\d{2} (AM|PM)
+            timeout_ms: 1000
+        read_from: beginning
+        type: file
+    s_logs_mysql_err:
+        file_key: log.origin.file.name
+        glob_minimum_cooldown_ms: 5000
+        ignore_older_secs: 86400
+        include:
+        - C:\ProgramData\MySQL\MySQL Server *\Data\*.err*
+        - C:\ProgramData\MySQL\MySQL Server *\Data\error.log*
+        read_from: end
+        type: file
+    s_logs_mysql_slow:
+        file_key: log.origin.file.name
+        glob_minimum_cooldown_ms: 5000
+        ignore_older_secs: 86400
+        include:
+        - C:\ProgramData\MySQL\MySQL Server *\Data\*-slow.log*
+        read_from: end
+        type: file
+transforms:
+    t_all:
+        inputs:
+        - t_logs_*
+        source: "if !exists(.service.environment) {\n  .service.environment = \"<env>\"\n}\nif
+            !exists(.service.instance) {\n  .service.instance = \"<instance>\"\n}\nif !exists(.service.component)
+            {\n  .service.component = \"<component>\"\n}\nif !exists(.service.subcomponent)
+            {\n  .service.subcomponent = \"<subcomponent>\"\n}"
+        type: remap
+    t_logs_aparavi_aggregator:
+        inputs:
+        - s_logs_aparavi_aggregator
+        source: ".service.name = \"aparavi\"\n.service.component = \"aggregator\"\n.service.subcomponent
+            = \"app\"\n\n# Aparavi logs don't contain timezone information in date/time
+            field.\n# Parse timestamp, local time zone will be used\nm, err = parse_regex(.message,
+            r'^(?P<date>\\d+/\\d+/\\d+), (?P<time>\\d+:\\d+:\\d+ (AM|PM)) (?P<message>.*)$')\nif
+            err == null {\n  timestr, err = m.date + \" \" + m.time\n  .@timestamp,
+            err = parse_timestamp(timestr, \"%m/%d/%Y %I:%M:%S %p\")\n  .message =
+            m.message\n}"
+        type: remap
+    t_logs_aparavi_appagent:
+        inputs:
+        - s_logs_aparavi_appagent
+        source: ".service.name = \"aparavi\"\n.service.component = \"appagent\"\n.service.subcomponent
+            = \"app\"\n\n# Aparavi logs don't contain timezone information in date/time
+            field.\n# Parse timestamp, local time zone will be used\nm, err = parse_regex(.message,
+            r'^(?P<date>\\d+/\\d+/\\d+), (?P<time>\\d+:\\d+:\\d+ (AM|PM)) (?P<message>.*)$')\nif
+            err == null {\n  timestr, err = m.date + \" \" + m.time\n  .@timestamp,
+            err = parse_timestamp(timestr, \"%m/%d/%Y %I:%M:%S %p\")\n  .message =
+            m.message\n}"
+        type: remap
+    t_logs_aparavi_collector:
+        inputs:
+        - s_logs_aparavi_collector
+        source: ".service.name = \"aparavi\"\n.service.component = \"collector\"\n.service.subcomponent
+            = \"app\"\n\n# Aparavi logs don't contain timezone information in date/time
+            field.\n# Parse timestamp, local time zone will be used\nm, err = parse_regex(.message,
+            r'^(?P<date>\\d+/\\d+/\\d+), (?P<time>\\d+:\\d+:\\d+ (AM|PM)) (?P<message>.*)$')\nif
+            err == null {\n  timestr, err = m.date + \" \" + m.time\n  .@timestamp,
+            err = parse_timestamp(timestr, \"%m/%d/%Y %I:%M:%S %p\")\n  .message =
+            m.message\n}"
+        type: remap
+    t_logs_aparavi_platform:
+        inputs:
+        - s_logs_aparavi_platform
+        source: ".service.name = \"aparavi\"\n.service.component = \"platform\"\n.service.subcomponent
+            = \"app\"\n\n# Aparavi logs don't contain timezone information in date/time
+            field.\n# Parse timestamp, local time zone will be used\nm, err = parse_regex(.message,
+            r'^(?P<date>\\d+/\\d+/\\d+), (?P<time>\\d+:\\d+:\\d+ (AM|PM)) (?P<message>.*)$')\nif
+            err == null {\n  timestr, err = m.date + \" \" + m.time\n  .@timestamp,
+            err = parse_timestamp(timestr, \"%m/%d/%Y %I:%M:%S %p\")\n  .message =
+            m.message\n}"
+        type: remap
+    t_logs_aparavi_worker:
+        inputs:
+        - s_logs_aparavi_worker
+        source: ".service.name = \"aparavi\"\n.service.component = \"worker\"\n.service.subcomponent
+            = \"app\"\n\n# Aparavi logs don't contain timezone information in date/time
+            field.\n# Parse timestamp, local time zone will be used\nm, err = parse_regex(.message,
+            r'^(?P<date>\\d+/\\d+/\\d+), (?P<time>\\d+:\\d+:\\d+ (AM|PM)) (?P<message>.*)$')\nif
+            err == null {\n  timestr, err = m.date + \" \" + m.time\n  .@timestamp,
+            err = parse_timestamp(timestr, \"%m/%d/%Y %I:%M:%S %p\")\n  .message =
+            m.message\n}"
+        type: remap
+    t_logs_myql_err:
+        inputs:
+        - s_logs_mysql_err
+        source: '.event.module = "mysql"
+
+            .event.dataset = "mysql.error"'
+        type: remap
+    t_logs_mysql_slow:
+        inputs:
+        - s_logs_mysql_slow
+        source: '.event.module = "mysql"
+
+            .event.dataset = "mysql.slow"'
+        type: remap

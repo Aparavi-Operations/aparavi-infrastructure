@@ -19,7 +19,7 @@ param (
     [Parameter(
     HelpMessage="Application installer url.")]
     [Alias("u")][string]$downloadUrl = "https://aparavi.jfrog.io/artifactory/aparavi-installers-public/windows-installer-latest.exe",
-    
+
     [Parameter(
     HelpMessage="Application Database username.")]
     [Alias("m")][string]$mysqlUser = "aparavi_app",
@@ -215,7 +215,7 @@ function install_mysql_exporter {
   unzip "nssm.zip" "$env:ProgramFiles"
 
   Move-Item -Force -path "$env:ProgramFiles\nssm-${nssmversion}\win64\nssm.exe" -destination "$env:ProgramFiles\mysqld_exporter-${version}.windows-amd64"
-  
+
   $nssmcleanup = @(
     "remove"
     "${servicename}"
@@ -263,6 +263,32 @@ function install_prometheus_exporter {
     "EXTRA_FLAGS=--collector.process.whitelist=`"${collector_whitelist}`""
   )
   Start-Process -Wait -NoNewWindow -FilePath "msiexec.exe" -ArgumentList $installeropts
+}
+
+function install_vector {
+  param (
+    [string]$version = "0.29.1"
+  )
+  Write-Host "Downloading Vector installer..."
+  $url = "https://packages.timber.io/vector/${version}/vector-${version}-x64.msi"
+  Invoke-WebRequest -Uri $url -OutFile "vector.msi"
+  Write-Host "Downloading Vector installer. DONE"
+  $installeropts = @(
+    "/i"
+    "vector.msi"
+  )
+  Start-Process -Wait -NoNewWindow -FilePath "msiexec.exe" -ArgumentList $installeropts
+
+  New-Item "$env:ProgramData\vector" -Force -ItemType Directory > $null
+  Copy-Item -Path "aparavi-infrastructure\windows\vector.yml" -NewName "$env:ProgramFiles\vector\config\vector.yml"
+
+  $register_service = @(
+    "service"
+    "install"
+    "--config-yaml"
+    "$env:ProgramFiles\vector\config\vector.yml"
+  )
+  Start-Process -Wait -NoNewWindow -FilePath "$env:ProgramFiles\vector\bin\vector.exe" -ArgumentList $register_service
 }
 
 function Add-NoteProperty {
@@ -318,6 +344,31 @@ function filebeat_install {
   $filebeatservice = Stop-Service -Name "filebeat" -PassThru
   $filebeatservice.WaitForStatus("Stopped")
   Start-Service -Name "filebeat"
+}
+
+function install_vector {
+  param (
+    [string]$version = "0.29.1"
+  )
+  Write-Host "Downloading Vector installer..."
+  $url = "https://packages.timber.io/vector/${version}/vector-${version}-x64.msi"
+  Invoke-WebRequest -Uri $url -OutFile "vector.msi"
+  Write-Host "Downloading Vector installer. DONE"
+  $installeropts = @(
+    "/i"
+    "vector.msi"
+  )
+  Start-Process -Wait -NoNewWindow -FilePath "msiexec.exe" -ArgumentList $installeropts
+
+  New-Item "$env:ProgramData\vector" -Force -ItemType Directory > $null
+
+  $register_service = @(
+    "service"
+    "install"
+    "--config-yaml"
+    "$env:ProgramFiles\vector\config\vector.yml"
+  )
+  Start-Process -Wait -NoNewWindow -FilePath "$env:ProgramFiles\vector\bin\vector.exe" -ArgumentList $register_service
 }
 
 function get_app_installer {
@@ -462,7 +513,7 @@ function run_installer {
     "--"
     "/APPTYPE=${type}"
     "/SILENT"
-    "/NOSTART" 
+    "/NOSTART"
   )
   if (@("appagt", "appliance", "agent") -contains $type) {
     $installeropts = $installeropts + @(
@@ -547,7 +598,7 @@ function configure_app {
   $apptypename = app_type_name -type $type
   $apptypenamelower = $apptypename.ToLower()
   $configfile = "${env:ProgramData}\aparavi-data-ia\${apptypenamelower}\config\config.json"
-  $retry = 0 
+  $retry = 0
   while(!(Test-Path($configfile)) -and ($retry -lt 60)) {
     Write-Host "Waiting for ${configfile} generation..."
     Start-Sleep 1

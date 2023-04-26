@@ -287,7 +287,7 @@ function install_vector {
   Write-Host "Installing Vector..."
   Start-Process -Wait -NoNewWindow -FilePath "msiexec.exe" -ArgumentList $installeropts
   New-Item "$env:ProgramData\vector" -Force -ItemType Directory > $null
-  Copy-Item -Path "aparavi-infrastructure\windows\vector.yml" -NewName "$env:ProgramFiles\vector\config\vector.yml"
+  Copy-Item "aparavi-infrastructure\windows\vector.yml" -Destination "$env:ProgramFiles\vector\config\vector.yml"
   (Get-Content "$env:ProgramFiles\vector\config\vector.yml").replace('<<environment>>', $environment) | Set-Content "$env:ProgramFiles\vector\config\vector.yml"
 
   Write-Host "Registering and starting service..."

@@ -372,7 +372,7 @@ function vector_install {
     "service"
     "install"
     "--config-yaml"
-    "$env:ProgramFiles\vector\config\vector.yml"
+    "`"$env:ProgramFiles\vector\config\vector.yml`""
   )
   Start-Process -Wait -NoNewWindow -FilePath "$env:ProgramFiles\vector\bin\vector.exe" -ArgumentList $register_service
 }

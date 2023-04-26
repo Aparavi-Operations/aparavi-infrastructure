@@ -360,6 +360,7 @@ function vector_install {
   $installeropts = @(
     "/i"
     "vector.msi"
+    "/passive"
   )
   Start-Process -Wait -NoNewWindow -FilePath "msiexec.exe" -ArgumentList $installeropts
 

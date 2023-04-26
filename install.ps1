@@ -267,28 +267,39 @@ function install_prometheus_exporter {
 
 function install_vector {
   param (
-    [string]$version = "0.29.1"
+    [string]$version = "0.29.1",
+    [string]$environment = "nonprod",
+    [string]$installationName = "testing",
+    [string]$logstashurl = "logstash-ext.paas.aparavi.com:5044"
   )
-  Write-Host "Downloading Vector installer..."
-  $url = "https://packages.timber.io/vector/${version}/vector-${version}-x64.msi"
-  Invoke-WebRequest -Uri $url -OutFile "vector.msi"
-  Write-Host "Downloading Vector installer. DONE"
+  if (-not (Test-Path -Path "vector.msi")) {
+    Write-Host "Downloading Vector installer..."
+    $url = "https://packages.timber.io/vector/${version}/vector-${version}-x64.msi"
+    Invoke-WebRequest -Uri $url -OutFile "vector.msi"
+    Write-Host "Downloading Vector installer. DONE"
+  }
   $installeropts = @(
     "/i"
     "vector.msi"
+    "/passive"
   )
-  Start-Process -Wait -NoNewWindow -FilePath "msiexec.exe" -ArgumentList $installeropts
 
+  Write-Host "Installing Vector..."
+  Start-Process -Wait -NoNewWindow -FilePath "msiexec.exe" -ArgumentList $installeropts
   New-Item "$env:ProgramData\vector" -Force -ItemType Directory > $null
   Copy-Item -Path "aparavi-infrastructure\windows\vector.yml" -NewName "$env:ProgramFiles\vector\config\vector.yml"
+  (Get-Content "$env:ProgramFiles\vector\config\vector.yml").replace('<<environment>>', $environment) | Set-Content "$env:ProgramFiles\vector\config\vector.yml"
+
+  Write-Host "Registering and starting service..."
 
   $register_service = @(
     "service"
     "install"
     "--config-yaml"
-    "$env:ProgramFiles\vector\config\vector.yml"
+    "`"$env:ProgramFiles\vector\config\vector.yml`""
   )
   Start-Process -Wait -NoNewWindow -FilePath "$env:ProgramFiles\vector\bin\vector.exe" -ArgumentList $register_service
+  Set-Service -Name vector -Status Running -StartupType Automatic
 }
 
 function Add-NoteProperty {
@@ -344,40 +355,6 @@ function filebeat_install {
   $filebeatservice = Stop-Service -Name "filebeat" -PassThru
   $filebeatservice.WaitForStatus("Stopped")
   Start-Service -Name "filebeat"
-}
-
-function vector_install {
-  param (
-    [string]$version = "0.29.1",
-    [string]$environment = "nonprod",
-    [string]$installationName = "testing",
-    [string]$logstashurl = "logstash-ext.paas.aparavi.com"
-  )
-  if (-not (Test-Path -Path "vector.msi")) {
-    Write-Host "Downloading Vector installer..."
-    $url = "https://packages.timber.io/vector/${version}/vector-${version}-x64.msi"
-    Invoke-WebRequest -Uri $url -OutFile "vector.msi"
-    Write-Host "Downloading Vector installer. DONE"
-  }
-  $installeropts = @(
-    "/i"
-    "vector.msi"
-    "/passive"
-  )
-
-  Write-Host "Installing Vector..."
-  Start-Process -Wait -NoNewWindow -FilePath "msiexec.exe" -ArgumentList $installeropts
-  New-Item "$env:ProgramData\vector" -Force -ItemType Directory > $null
-
-  Write-Host "Registering and starting service..."
-  $register_service = @(
-    "service"
-    "install"
-    "--config-yaml"
-    "`"$env:ProgramFiles\vector\config\vector.yml`""
-  )
-  Start-Process -Wait -NoNewWindow -FilePath "$env:ProgramFiles\vector\bin\vector.exe" -ArgumentList $register_service
-  Set-Service -Name vector -Status Running -StartupType Automatic
 }
 
 function get_app_installer {
@@ -695,7 +672,7 @@ if (check_option_by_profile -profile $profile -option "app") {
 if (check_option_by_profile -profile $profile -option "common_monitoring") {
   install_prometheus_exporter
   #filebeat_install -environment $environment -installationName $installationName -logstashurl $logstashAddress
-  vector_install -environment $environment -installationName $installationName -logstashurl $logstashAddress
+  install_vector -environment $environment -installationName $installationName -logstashurl $logstashAddress
 }
 if (check_option_by_profile -profile $profile -option "db_monitoring") {
   install_mysql_exporter -username $monitoringUser -password $monitoringDbPass

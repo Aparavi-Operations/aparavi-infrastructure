@@ -128,8 +128,8 @@ transforms:
     t_all:
         inputs:
         - t_logs_*
-        source: "if !exists(.service.environment) {\n  .service.environment = \"prod-onprem\"\n}\nif
-            !exists(.service.instance) {\n  .service.instance = \"tenergy\"\n}\nif !exists(.service.component)
+        source: "if !exists(.service.environment) {\n  .service.environment = \"<<environment>>\"\n}\nif
+            !exists(.service.instance) {\n  .service.instance = \"<<instance>>\"\n}\nif !exists(.service.component)
             {\n  .service.component = \"appagent\"\n}\nif !exists(.service.subcomponent)
             {\n  .service.subcomponent = \"app\"\n}"
         type: remap

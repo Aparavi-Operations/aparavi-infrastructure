@@ -67,9 +67,9 @@ param (
     [bool]$printPasswords = $true
 )
 
-Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-Install-Module -Name powershell-yaml -Force -Verbose -Scope CurrentUser
-Import-Module powershell-yaml
+# Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+# Install-Module -Name powershell-yaml -Force -Verbose -Scope CurrentUser
+# Import-Module powershell-yaml
 
 $APPAGT_OPTIONS = @(
   'mysql',

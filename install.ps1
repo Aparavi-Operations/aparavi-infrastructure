@@ -348,7 +348,7 @@ function filebeat_install {
 
 function install_vector {
   param (
-    [string]$version = "0.29.1"
+    [string]$version = "0.29.1",
     [string]$environment = "nonprod",
     [string]$installationName = "testing",
     [string]$logstashurl = "logstash-ext.paas.aparavi.com"

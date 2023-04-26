@@ -364,10 +364,12 @@ function vector_install {
     "vector.msi"
     "/passive"
   )
-  Start-Process -Wait -NoNewWindow -FilePath "msiexec.exe" -ArgumentList $installeropts
 
+  Write-Host "Installing Vector..."
+  Start-Process -Wait -NoNewWindow -FilePath "msiexec.exe" -ArgumentList $installeropts
   New-Item "$env:ProgramData\vector" -Force -ItemType Directory > $null
 
+  Write-Host "Registering and starting service..."
   $register_service = @(
     "service"
     "install"
@@ -375,6 +377,7 @@ function vector_install {
     "`"$env:ProgramFiles\vector\config\vector.yml`""
   )
   Start-Process -Wait -NoNewWindow -FilePath "$env:ProgramFiles\vector\bin\vector.exe" -ArgumentList $register_service
+  Set-Service -Name vector -Status Running -StartupType Automatic
 }
 
 function get_app_installer {

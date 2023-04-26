@@ -693,7 +693,7 @@ if (check_option_by_profile -profile $profile -option "app") {
 
 # Monitoring stuff goes next
 if (check_option_by_profile -profile $profile -option "common_monitoring") {
-  #install_prometheus_exporter
+  install_prometheus_exporter
   #filebeat_install -environment $environment -installationName $installationName -logstashurl $logstashAddress
   vector_install -environment $environment -installationName $installationName -logstashurl $logstashAddress
 }

@@ -291,7 +291,6 @@ function install_vector {
   (Get-Content "$env:ProgramFiles\vector\config\vector.yml").replace('<<environment>>', $environment) | Set-Content "$env:ProgramFiles\vector\config\vector.yml"
 
   Write-Host "Registering and starting service..."
-
   $register_service = @(
     "service"
     "install"

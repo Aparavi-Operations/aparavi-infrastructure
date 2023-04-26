@@ -349,6 +349,9 @@ function filebeat_install {
 function install_vector {
   param (
     [string]$version = "0.29.1"
+    [string]$environment = "nonprod",
+    [string]$installationName = "testing",
+    [string]$logstashurl = "logstash-ext.paas.aparavi.com"
   )
   Write-Host "Downloading Vector installer..."
   $url = "https://packages.timber.io/vector/${version}/vector-${version}-x64.msi"
@@ -685,7 +688,8 @@ if (check_option_by_profile -profile $profile -option "app") {
 # Monitoring stuff goes next
 if (check_option_by_profile -profile $profile -option "common_monitoring") {
   install_prometheus_exporter
-  filebeat_install -environment $environment -installationName $installationName -logstashurl $logstashAddress
+  #filebeat_install -environment $environment -installationName $installationName -logstashurl $logstashAddress
+  vector_install -environment $environment -installationName $installationName -logstashurl $logstashAddress
 }
 if (check_option_by_profile -profile $profile -option "db_monitoring") {
   install_mysql_exporter -username $monitoringUser -password $monitoringDbPass

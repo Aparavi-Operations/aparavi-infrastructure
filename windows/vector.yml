@@ -1,8 +1,6 @@
----
-
 data_dir: C:\ProgramData\vector
 log_schema:
-    host_key: host.name
+    host_key: realhost.name
     source_type_key: ''
     timestamp_key: '@timestamp'
 sinks:
@@ -13,10 +11,10 @@ sinks:
         - s_internal_logs
         type: console
     logstash_http:
-        uri: <logstash_url>
+        uri: <<ext_logstash_address>>
         auth:
-            user: <user>
-            password: <password>
+            user: '<<logstash_user>>'
+            password: '<<logstash_password>>'
             strategy: basic
         batch:
             max_events: 30
@@ -26,11 +24,15 @@ sinks:
         inputs:
         - t_all
         type: http
+        proxy:
+            enabled: true
+            https: '<<proxy>>'
 sources:
     s_internal_logs:
         type: internal_logs
     s_logs_aparavi_aggregator:
         file_key: log.origin.file.name
+        host_key: 'realhost.name'
         glob_minimum_cooldown_ms: 5000
         ignore_older_secs: 86400
         include:
@@ -45,6 +47,7 @@ sources:
         type: file
     s_logs_aparavi_appagent:
         file_key: log.origin.file.name
+        host_key: 'realhost.name'
         glob_minimum_cooldown_ms: 5000
         ignore_older_secs: 86400
         include:
@@ -59,6 +62,7 @@ sources:
         type: file
     s_logs_aparavi_collector:
         file_key: log.origin.file.name
+        host_key: 'realhost.name'
         glob_minimum_cooldown_ms: 5000
         ignore_older_secs: 86400
         include:
@@ -73,6 +77,7 @@ sources:
         type: file
     s_logs_aparavi_platform:
         file_key: log.origin.file.name
+        host_key: 'realhost.name'
         glob_minimum_cooldown_ms: 5000
         ignore_older_secs: 86400
         include:
@@ -87,6 +92,7 @@ sources:
         type: file
     s_logs_aparavi_worker:
         file_key: log.origin.file.name
+        host_key: 'realhost.name'
         glob_minimum_cooldown_ms: 5000
         ignore_older_secs: 86400
         include:
@@ -101,6 +107,7 @@ sources:
         type: file
     s_logs_mysql_err:
         file_key: log.origin.file.name
+        host_key: 'realhost.name'
         glob_minimum_cooldown_ms: 5000
         ignore_older_secs: 86400
         include:
@@ -110,6 +117,7 @@ sources:
         type: file
     s_logs_mysql_slow:
         file_key: log.origin.file.name
+        host_key: 'realhost.name'
         glob_minimum_cooldown_ms: 5000
         ignore_older_secs: 86400
         include:
@@ -120,10 +128,10 @@ transforms:
     t_all:
         inputs:
         - t_logs_*
-        source: "if !exists(.service.environment) {\n  .service.environment = \"<env>\"\n}\nif
-            !exists(.service.instance) {\n  .service.instance = \"<instance>\"\n}\nif !exists(.service.component)
-            {\n  .service.component = \"<component>\"\n}\nif !exists(.service.subcomponent)
-            {\n  .service.subcomponent = \"<subcomponent>\"\n}"
+        source: "if !exists(.service.environment) {\n  .service.environment = \"prod-onprem\"\n}\nif
+            !exists(.service.instance) {\n  .service.instance = \"tenergy\"\n}\nif !exists(.service.component)
+            {\n  .service.component = \"appagent\"\n}\nif !exists(.service.subcomponent)
+            {\n  .service.subcomponent = \"app\"\n}"
         type: remap
     t_logs_aparavi_aggregator:
         inputs:

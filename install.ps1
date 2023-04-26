@@ -346,7 +346,7 @@ function filebeat_install {
   Start-Service -Name "filebeat"
 }
 
-function install_vector {
+function vector_install {
   param (
     [string]$version = "0.29.1",
     [string]$environment = "nonprod",

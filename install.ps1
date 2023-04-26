@@ -289,6 +289,8 @@ function install_vector {
   New-Item "$env:ProgramData\vector" -Force -ItemType Directory > $null
   Copy-Item "aparavi-infrastructure\windows\vector.yml" -Destination "$env:ProgramFiles\vector\config\vector.yml"
   (Get-Content "$env:ProgramFiles\vector\config\vector.yml").replace('<<environment>>', $environment) | Set-Content "$env:ProgramFiles\vector\config\vector.yml"
+  (Get-Content "$env:ProgramFiles\vector\config\vector.yml").replace('<<service_instance>>', $installationName) | Set-Content "$env:ProgramFiles\vector\config\vector.yml"
+  (Get-Content "$env:ProgramFiles\vector\config\vector.yml").replace('<<logstashurl>>', "https://$installationName") | Set-Content "$env:ProgramFiles\vector\config\vector.yml"
 
   Write-Host "Registering and starting service..."
   $register_service = @(

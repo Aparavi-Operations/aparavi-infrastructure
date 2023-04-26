@@ -353,10 +353,12 @@ function vector_install {
     [string]$installationName = "testing",
     [string]$logstashurl = "logstash-ext.paas.aparavi.com"
   )
-  Write-Host "Downloading Vector installer..."
-  $url = "https://packages.timber.io/vector/${version}/vector-${version}-x64.msi"
-  Invoke-WebRequest -Uri $url -OutFile "vector.msi"
-  Write-Host "Downloading Vector installer. DONE"
+  if (-not (Test-Path -Path "vector.msi")) {
+    Write-Host "Downloading Vector installer..."
+    $url = "https://packages.timber.io/vector/${version}/vector-${version}-x64.msi"
+    Invoke-WebRequest -Uri $url -OutFile "vector.msi"
+    Write-Host "Downloading Vector installer. DONE"
+  }
   $installeropts = @(
     "/i"
     "vector.msi"
